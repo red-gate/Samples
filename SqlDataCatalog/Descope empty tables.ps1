@@ -3,7 +3,8 @@ $serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if
 $instanceName = 'sql-server1.domain.com'
 $databaseName = 'AdventureWorks'
 
-Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' -Headers @{"Authorization" = "Bearer $authToken" }
+Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
+    -Headers @{"Authorization" = "Bearer $authToken" }
 
 Import-Module .\data-catalog.psm1 -Force
 
@@ -20,4 +21,5 @@ $emptyTableColumnsInDboSchema = $emptyTableColumns | Where-Object { $_.schemaNam
 
 # Add-ClassificationColumnTag does a non-destructive update on all these columns (i.e. other tags are not removed)
 $emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Sensitivity" -tags "General"
-$emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Classification Scope" -tags "Out of Scope - Unused"
+$emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Classification Scope" `
+    -tags "Out of Scope - Unused"

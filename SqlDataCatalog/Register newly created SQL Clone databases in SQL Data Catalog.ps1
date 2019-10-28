@@ -1,9 +1,11 @@
-# Script to deliver clone databases using the SQL Clone cmdlets, then register the new clone databases in SQL Data Catalog
+# Script to deliver clone databases using the SQL Clone cmdlets,
+# then register the new clone databases in SQL Data Catalog
 
 $dataCatalogAuthToken = "[Your auth token]"
 $catalogServerName = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if you've configured SSL
 
-Invoke-WebRequest -Uri "$catalogServerName/powershell" -OutFile 'data-catalog.psm1' -Headers @{"Authorization" = "Bearer $dataCatalogAuthToken" }
+Invoke-WebRequest -Uri "$catalogServerName/powershell" -OutFile 'data-catalog.psm1' `
+    -Headers @{"Authorization" = "Bearer $dataCatalogAuthToken" }
 Import-Module .\data-catalog.psm1 -Force
 
 # Connect to SQL Clone server
@@ -48,5 +50,6 @@ $Destinations |
 $Destinations |
     ForEach-Object {
         $machineInstance = $_.Machine.MachineName.ToString() + "\" + $_.Instance.ToString()
-        Copy-Classification -sourceInstanceName $ImageSourceInstance -sourceDatabaseName $ImageSourceDatabase -destinationInstanceName $machineInstance -destinationDatabaseName $CloneName
+        Copy-Classification -sourceInstanceName $ImageSourceInstance -sourceDatabaseName $ImageSourceDatabase `
+            -destinationInstanceName $machineInstance -destinationDatabaseName $CloneName
     }

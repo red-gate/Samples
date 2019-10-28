@@ -5,11 +5,13 @@ $sourceDatabaseName = "AdventureWorks"
 $destinationDatabaseName = "AdventureWorksCopy"
 
 
-Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' -Headers @{"Authorization" = "Bearer $authToken" }
+Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
+    -Headers @{"Authorization" = "Bearer $authToken" }
 
 Import-Module .\data-catalog.psm1 -Force
 
 # connect to your SQL Data Catalog instance - you'll need to generate an auth token in the UI
 Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverUrl
 
-Copy-Classification -sourceInstanceName $instanceName -sourceDatabaseName $sourceDatabaseName -destinationInstanceName $instanceName -destinationDatabaseName $destinationDatabaseName
+Copy-Classification -sourceInstanceName $instanceName -sourceDatabaseName $sourceDatabaseName `
+    -destinationInstanceName $instanceName -destinationDatabaseName $destinationDatabaseName
