@@ -8,7 +8,7 @@ Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' -Hea
 Import-Module .\data-catalog.psm1 -Force
 
 # connect to your SQL Data Catalog instance - you'll need to generate an auth token in the UI
-Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverURL
+Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverUrl
 
 # get all columns into a collection
 $allColumns = Get-ClassificationColumn -instanceName $instanceName -databaseName $databaseName
