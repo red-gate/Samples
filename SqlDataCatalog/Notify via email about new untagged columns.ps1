@@ -6,12 +6,13 @@ $instanceName = 'sql-server1.domain.com'
 $databaseName = "AdventureWorks"
 
 
-Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' -Headers @{"Authorization" = "Bearer $authToken" }
+Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
+    -Headers @{"Authorization" = "Bearer $authToken" }
 
 Import-Module .\data-catalog.psm1 -Force
 
 # connect to your SQL Data Catalog instance - you'll need to generate an auth token in the UI
-Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverURL
+Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverUrl
 
 # get all columns into a collection
 $allColumns = Get-ClassificationColumn -instanceName $instanceName -databaseName $databaseName
@@ -32,7 +33,8 @@ if ($untaggedColumns.Count -gt 0) {
     $Body = $text.Normalize()
     $SMTPServer = "yourSmtpServer.your-domain.com"
     $SMTPPort = "25"
-    Send-MailMessage -From $From -to $To -Subject $Subject -Body $Body -SmtpServer $SMTPServer -port $SMTPPort -DeliveryNotificationOption OnSuccess
+    Send-MailMessage -From $From -to $To -Subject $Subject -Body $Body `
+        -SmtpServer $SMTPServer -port $SMTPPort -DeliveryNotificationOption OnSuccess
 }
 else {
     "Started at {0}, NO untagged columns found. {1} total columns found" -f $(Get-Date) , $allColumns.Count

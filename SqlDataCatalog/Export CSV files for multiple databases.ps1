@@ -5,12 +5,13 @@ $serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if
 $instanceName = 'sql-server1.domain.com'
 $databaseNames = @('AdventureWorks', 'StackOverflow2010', 'Forex')
 
-Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' -Headers @{"Authorization" = "Bearer $authToken" }
+Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
+    -Headers @{"Authorization" = "Bearer $authToken" }
 
 Import-Module .\data-catalog.psm1 -Force
 
 # connect to your SQL Data Catalog instance - you'll need to generate an auth token in the UI
-Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverURL
+Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverUrl
 
 $databaseNames |
     ForEach-Object {

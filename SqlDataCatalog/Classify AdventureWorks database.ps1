@@ -3,18 +3,20 @@ $serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if
 $instanceName = 'sql-server1.domain.com'
 $databaseName = 'AdventureWorks'
 
-Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' -Headers @{"Authorization" = "Bearer $authToken" }
+Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
+    -Headers @{"Authorization" = "Bearer $authToken" }
 
 Import-Module .\data-catalog.psm1 -Force
 
 # connect to your SQL Data Catalog instance - you'll need to generate an auth token in the UI
-Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverURL
+Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverUrl
 
 # get all columns into a collection
 $allColumns = Get-ClassificationColumn -instanceName $instanceName -databaseName $databaseName
 
 if (-not $allColumns) {
-    throw "No columns returned, check if the instance '$instanceName' is registered and that it contains a database '$databaseName'."
+    throw "No columns returned, check if the instance '$instanceName' is" +
+    "registered and that it contains a database '$databaseName'."
 }
 
 # create group of columns for email
@@ -33,7 +35,8 @@ Set-Classification -columns $emailColumns -categories $emailcategories
 $idColumns = $allColumns | Where-Object { $_.ColumnName -like "*id" }
 
 $idCategories = @{
-    "Sensitivity"      = @("System") # make sure that your taxonomy has the 'System' tag added to the 'Sensitivity' category
+    # please make sure that your taxonomy has the 'System' tag added to the 'Sensitivity' category
+    "Sensitivity"      = @("System")
     "Information Type" = @("Other")
 }
 
@@ -51,7 +54,9 @@ Set-Classification -columns $geoColumns -categories $geoCategories
 
 # create group of columns for system-internal tables and columns
 $systemColumns = $allColumns |
-    Where-Object { $_.tableName -like "*Build*" -or $_.tableName -like "*Database*" -or $_.tableName -like "*Error*" -or $_.columnName -like "*ModifiedDate*" -or $_.columnName -like "*Flag*" }
+    Where-Object { $_.tableName -like "*Build*" -or $_.tableName -like "*Database*" -or `
+            $_.tableName -like "*Error*" -or $_.columnName -like "*ModifiedDate*" -or `
+            $_.columnName -like "*Flag*" }
 
 $systemCategories = @{
     "Sensitivity"      = @("System")
@@ -81,7 +86,9 @@ Set-Classification -columns $salesStaffColumns -categories $salesStaffCategories
 
 # and some information about employees which is sensitive
 $employeeColumns = $allColumns |
-    Where-Object { $_.columnName -eq 'Resume' -or $_.columnName -like '*SickLeave*' -or $_.tableName -like '*PayHistory*' -or $_.tableName -eq 'Shift' -or $_.columnName -like '*Marital*' -and $_.columnName -ne 'RateChangeDate' }
+    Where-Object { $_.columnName -eq 'Resume' -or $_.columnName -like '*SickLeave*' -or `
+            $_.tableName -like '*PayHistory*' -or $_.tableName -eq 'Shift' -or `
+            $_.columnName -like '*Marital*' -and $_.columnName -ne 'RateChangeDate' }
 
 $employeeCategories = @{
     "Sensitivity" = @("Confidential - GDPR")
