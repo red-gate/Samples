@@ -1,6 +1,6 @@
 # A description of the Powershell files in this directory
 
-This directory contains a number of scripts to help you integrate [Sql Data Catalog](https://www.red-gate.com/products/dba/sql-data-catalog/) with [Sql Data Masker](https://www.red-gate.com/products/dba/data-masker/)
+This directory contains a number of scripts to help you integrate [Sql Data Catalog](https://www.red-gate.com/products/dba/sql-data-catalog/) with [Data Masker](https://www.red-gate.com/products/dba/data-masker/).
 
 ## Add masking taxonomy.ps1
 
@@ -9,7 +9,7 @@ This Powershell script adds this category and the tags to the taxonomy.
 
 ## Tag a column for masking.ps1
 
-This Powershell demonstrates how you'd mark tag a column of the AdventureWorks database so that it will be picked up by the following script.
+This Powershell demonstrates how you'd tag a column of the `AdventureWorks` database so that it will be picked up by the following script.
 
 ## Generate masking set from catalog.ps1
 
@@ -26,7 +26,7 @@ $instanceName = 'sql-server1.domain.com'
 $databaseName = 'AdventureWorks'
 ```
 
-to generate a masking set which it will be saved into the output file.
+to generate a masking set which will be saved into the output file.
 
 ```powershell
 $outputMaskingSetPath = "AdventureWorks Generated.DMSMaskSet"
