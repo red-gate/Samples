@@ -1,6 +1,12 @@
 $authToken = "[Your auth token]"
 $serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if you've configured SSL
 
+
+Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
+    -Headers @{"Authorization" = "Bearer $authToken" }
+
+Import-Module .\data-catalog.psm1 -Force
+
 Import-Module .\DataMaskerHelpers.psm1 -Force
 
 # Set up the new tag category
