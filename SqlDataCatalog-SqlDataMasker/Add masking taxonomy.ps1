@@ -21,7 +21,7 @@ $headers = @{"Authorization" = "Bearer $authToken" }
 $taxonomy = Get-ClassificationTaxonomy
 
 if ('Masking Data Set' -notin $taxonomy.TagCategories.name) {
-    $result = Invoke-WebRequest $serverUrl/api/v1.0/tagcategories -UseBasicParsing -Method Post `
+    $result = Invoke-WebRequest "$serverUrl/api/v1.0/taxonomy/tag-categories" -UseBasicParsing -Method Post `
         -Body (ConvertTo-Json $payload) -ContentType 'application/json' -Headers $headers
 
     if (-not $result.StatusDescription -eq "Created") {
@@ -34,7 +34,7 @@ else {
     $maskingDataSetTagCategoryId = $taxonomy.TagCategories |
         Where-Object { $_.name -eq 'Masking Data Set' } |
         Select-Object -ExpandProperty id
-    $addedCategoryGetUrl = "$serverUrl/api/v1.0/tagcategories/$maskingDataSetTagCategoryId"
+    $addedCategoryGetUrl = "$serverUrl/api/v1.0/taxonomy/tag-categories/$maskingDataSetTagCategoryId"
 }
 
 $maskingDataSetTags = $taxonomy.TagCategories |
