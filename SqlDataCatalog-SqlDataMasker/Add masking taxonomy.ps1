@@ -18,6 +18,10 @@ $payload = @{
 
 $headers = @{"Authorization" = "Bearer $authToken" }
 
+
+# connect to your SQL Data Catalog instance - you'll need to generate an auth token in the UI
+Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverUrl
+
 $taxonomy = Get-ClassificationTaxonomy
 
 if ('Masking Data Set' -notin $taxonomy.TagCategories.name) {
