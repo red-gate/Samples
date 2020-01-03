@@ -18,17 +18,36 @@ $payload = @{
 
 $headers = @{"Authorization" = "Bearer $authToken" }
 
-$result = Invoke-WebRequest $serverUrl/api/v1.0/tagcategories -UseBasicParsing -Method Post `
-    -Body (ConvertTo-Json $payload) -ContentType 'application/json' -Headers $headers
+$taxonomy = Get-ClassificationTaxonomy
 
-if (-not $result.StatusDescription -eq "Created") {
-    Write-Host "Unable to add Masking Data Set tag category"
-    Exit
+if ('Masking Data Set' -notin $taxonomy.TagCategories.name) {
+    $result = Invoke-WebRequest $serverUrl/api/v1.0/tagcategories -UseBasicParsing -Method Post `
+        -Body (ConvertTo-Json $payload) -ContentType 'application/json' -Headers $headers
+
+    if (-not $result.StatusDescription -eq "Created") {
+        Write-Host "Unable to add Masking Data Set tag category"
+        Exit
+    }
+    $addedCategoryGetUrl = $result.Headers.Location
+}
+else {
+    $maskingDataSetTagCategoryId = $taxonomy.TagCategories |
+        Where-Object { $_.name -eq 'Masking Data Set' } |
+        Select-Object -ExpandProperty id
+    $addedCategoryGetUrl = "$serverUrl/api/v1.0/tagcategories/$maskingDataSetTagCategoryId"
 }
 
-$addedCategoryGetUrl = $result.Headers.Location
+$maskingDataSetTags = $taxonomy.TagCategories |
+    Where-Object { $_.name -eq 'Masking Data Set' } |
+    Select-Object -ExpandProperty tags |
+    Select-Object -ExpandProperty name
 
 foreach ($tagname in Get-MaskingTaxonomyTags) {
+
+    if ($tagname -in $maskingDataSetTags) {
+        continue
+    }
+
     $tag = @{
         name        = $tagname
         description = $tagname
