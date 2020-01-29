@@ -1,0 +1,3 @@
+#!/bin/sh
+exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".git\hooks\clone-branch.ps1"
+exit
