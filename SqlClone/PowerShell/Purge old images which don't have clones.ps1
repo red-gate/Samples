@@ -8,14 +8,8 @@
 #          test this and add protections appropriate to your environment before live use.
 ##########################################################################################
 
-$ServerUrl = 'http://sql-clone.example.com:14145'
-$MachineName = 'WIN201601'
-$InstanceName = 'SQL2014'
-$ImageLocation = '\\red-gate\data-images'
-$DatabaseName = 'AdventureWorks'
-$PermissionsScriptPath = '\\red-gate\data-scripts\change-permissions.sql'
-$MaskingSetPath = '\\red-gate\masking-sets\clean-pii-data.dmsmaskset'
-$ImageTimeToLiveDays = 7;
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$ImageTimeToLiveDays = 7; # Images older than this will be deleted
 
 ##########################################################################################
 
@@ -27,7 +21,7 @@ foreach ($image in $oldImages)
 {
     $clones = Get-SqlClone -Image $image
      
-    if (!($clones -eq $null))
+    if (!($null -eq $clones))
     {
         "Will not remove image {0} because it has {1} dependent clone(s)." -f $image.Name, $clones.Count
     }

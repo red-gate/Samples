@@ -8,8 +8,8 @@
 #          made to them will be lost.
 ##########################################################################################
 
-$ServerUrl = 'http://sql-clone.example.com:14145'
-$ImageName = 'Forex_20170301'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$ImageName = '[Your Image Name]' # The name of the image to remove clones from
 
 ##########################################################################################
 
@@ -22,8 +22,8 @@ $elapsed = [System.Diagnostics.Stopwatch]::StartNew()
 
 "Started at {0}, removing {1} clones for image ""{2}""" -f $(get-date) , $clones.Count , $image.Name
 
-$clones | foreach { # note - '{' needs to be on same line as 'foreach' !
+$clones | ForEach-Object { # note - '{' needs to be on same line as 'ForEach-Object' !
     $_ | Remove-SqlClone | Wait-SqlCloneOperation
     "Removed clone ""{0}""" -f $_.Name ;
-                    };
+};
 "Total Elapsed Time: {0}" -f $($elapsed.Elapsed.ToString())

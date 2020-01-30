@@ -9,12 +9,12 @@
 #         (the operation uses a virtual mount point into that location).
 ##########################################################################################
 
-$ServerUrl = 'http://sql-clone.example.com:14145'
-$MachineName = 'WIN201601'
-$InstanceName = 'SQL2014'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$MachineName = 'WIN201601' # The machine name of the SQL Server instance to create the clones on
+$InstanceName = 'SQL2014' # The instance name of the SQL Server instance to create the clones on
 $ImageLocation = '\\red-gate\data-images' # Point to the file share we want to use to store the image
-$DatabaseName = 'AdventureWorks'
-$BackupFolder = '\\File1.example.com\Backups\SQL\MSSQL\Backup'
+$DatabaseName = 'AdventureWorks' # The name of the database
+$BackupFolder = '\\File1.example.com\Backups\SQL\MSSQL\Backup' # The path to the database backup folder
 
 ##########################################################################################
 
@@ -47,6 +47,6 @@ $elapsed = [System.Diagnostics.Stopwatch]::StartNew()
 $DataImageName = $DatabaseName + "_" + (Get-Date -Format "yyyyMMdd") # Prepare a name for the data image, with a timestamp
 $ImageDestination = Get-SqlCloneImageLocation -Path $ImageLocation
 
-$NewImage = New-SqlCloneImage -Name $DataImageName -SqlServerInstance $TemporaryServer -BackupFileName $BackupFileName -Destination $ImageDestination | Wait-SqlCloneOperation # Create the data image and wait for completion
+New-SqlCloneImage -Name $DataImageName -SqlServerInstance $TemporaryServer -BackupFileName $BackupFileName -Destination $ImageDestination | Wait-SqlCloneOperation # Create the data image and wait for completion
 
 "Total Elapsed Time: {0}" -f $($elapsed.Elapsed.ToString())

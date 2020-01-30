@@ -7,11 +7,11 @@
 #          Server, or the temporary instance for an image from a backup file).
 ##########################################################################################
 
-$ServerUrl = 'http://sql-clone.example.com:14145'
-$MachineName = 'WIN201601'
-$InstanceName = 'SQL2014'
-$ImageLocation = '\\red-gate\data-images'
-$DatabaseName = 'AdventureWorks'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$MachineName = 'WIN201601' # The machine name of the SQL Server instance to create the clones on
+$InstanceName = 'SQL2014' # The instance name of the SQL Server instance to create the clones on
+$ImageLocation = '\\red-gate\data-images' # Point to the file share we want to use to store the image
+$DatabaseName = 'AdventureWorks' # The name of the database
 
 ##########################################################################################
 

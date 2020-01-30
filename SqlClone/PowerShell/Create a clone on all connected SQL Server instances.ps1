@@ -4,8 +4,8 @@
 #          available on all SQL Server instances which are registered with SQL Clone.
 ##########################################################################################
 
-$ServerUrl = 'http://sql-clone.example.com:14145'
-$ImageName =  '[Your Image Name]'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$ImageName =  '[Your Image Name]' # The name of the image to clone
 
 ##########################################################################################
 
@@ -22,7 +22,6 @@ $elapsed = [System.Diagnostics.Stopwatch]::StartNew()
 foreach ($Destination in $Destinations)
 {
     $SourceDataImage | New-SqlClone -Name $CloneName -Location $Destination | Wait-SqlCloneOperation
-    $ServerInstance = $Destination.Server + '\' +$Destination.Instance
     "Created clone in instance {0}" -f $Destination.Server + '\' + $Destination.Instance;  
 }
 "Total Elapsed Time: {0}" -f $($elapsed.Elapsed.ToString())

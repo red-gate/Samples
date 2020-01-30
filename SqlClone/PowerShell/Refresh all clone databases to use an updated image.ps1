@@ -8,9 +8,9 @@
 #          made to them will be lost. The old image will also be removed.
 ##########################################################################################
 
-$ServerUrl = 'http://sql-clone.example.com:14145'
-$ImageName = 'Forex_20170301'
-$NewImageName = 'Forex_20170302'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$ImageName = '[Your Image Name]' # The name of the image to move clones from
+$NewImageName = '[Your New Image Name]'  # The name of the image to move clones to
 
 ##########################################################################################
 
@@ -32,7 +32,6 @@ foreach ($clone in $oldClones)
     $newImage | New-SqlClone -Name $clone.Name -Location $thisDestination  | Wait-SqlCloneOperation
 
     "Added clone ""{0}"" to instance ""{1}"" " -f $clone.Name , $thisDestination.Server + '\' + $thisDestination.Instance;
-
 }
 
 # Remove the old image

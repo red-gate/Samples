@@ -3,10 +3,10 @@
 # Purpose: This script will create as many clone databases as requested on a given agent.
 ##########################################################################################
 
-$ServerUrl = 'http://sql-clone.example.com:14145'
-$MachineName = 'WIN201601'
-$InstanceName = 'SQL2014'
-$ImageName =  '[Your Image Name]'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$MachineName = 'WIN201601' # The machine name of the SQL Server instance to create the clones on
+$InstanceName = 'SQL2014' # The instance name of the SQL Server instance to create the clones on
+$ImageName =  '[Your Image Name]' # The name of the image to clone
 
 ##########################################################################################
 
