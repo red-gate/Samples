@@ -8,17 +8,27 @@
 #          Server, or the temporary instance for an image from a backup file).
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
-$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName WIN201601 -InstanceName SQL2014
-$ImageDestination = Get-SqlCloneImageLocation -Path '\\red-gate\data-images'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$MachineName = 'WIN201601'
+$InstanceName = 'SQL2014'
+$ImageLocation = '\\red-gate\data-images'
+$DatabaseName = 'AdventureWorks'
+$DropLargeTableScriptPath = '\\red-gate\data-scripts\drop-large-table.sql'
+$PermissionsScriptPath = '\\red-gate\data-scripts\change-permissions.sql'
 
-$MaskingScript = New-SqlCloneSqlScript -Path \\red-gate\data-scripts\mask-emails.sql
-$PermissionsScript = New-SqlCloneSqlScript -Path \\red-gate\data-scripts\change-permissions.sql
+##########################################################################################
 
-$ImageOperation = New-SqlCloneImage -Name "AdventureWorks-$(Get-Date -Format yyyyMMddHHmmss)-PartiallyCleansedAndWithPermissionsChanges" `
+Connect-SqlClone -ServerUrl $ServerUrl
+$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName $MachineName -InstanceName $InstanceName
+$ImageDestination = Get-SqlCloneImageLocation -Path $ImageLocation
+
+$DropBigTable = New-SqlCloneSqlScript -Path $DropLargeTableScriptPath
+$PermissionsScript = New-SqlCloneSqlScript -Path $PermissionsScriptPath
+
+$ImageOperation = New-SqlCloneImage -Name "$DatabaseName-$(Get-Date -Format yyyyMMddHHmmss)-PartiallyCleansedAndWithPermissionsChanges" `
     -SqlServerInstance $SqlServerInstance `
-    -DatabaseName 'AdventureWorks' `
+    -DatabaseName $DatabaseName `
     -Destination $ImageDestination `
-    -Modifications @($MaskingScript, $PermissionsScript)
+    -Modifications @($DropBigTable, $PermissionsScript)
 
 Wait-SqlCloneOperation -Operation $ImageOperation

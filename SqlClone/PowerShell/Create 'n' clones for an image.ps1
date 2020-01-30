@@ -3,14 +3,18 @@
 # Purpose: This script will create as many clone databases as requested on a given agent.
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$MachineName = 'WIN201601'
+$InstanceName = 'SQL2014'
+$ImageName =  '[Your Image Name]'
 
-$myLocalAgent = "wks-dev1"
-$myLocalInstance = "Dev"
+##########################################################################################
 
-$sqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName $myLocalAgent -InstanceName $myLocalInstance
+Connect-SqlClone -ServerUrl $ServerUrl
 
-$image = Get-SqlCloneImage -Name 'StackOverflow Jan 2017'
+$sqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName $MachineName -InstanceName $InstanceName
+
+$image = Get-SqlCloneImage -Name $ImageName
 
 $ClonePrefix = '_SO_Clone'
 $Count = 5 # or however many you want 

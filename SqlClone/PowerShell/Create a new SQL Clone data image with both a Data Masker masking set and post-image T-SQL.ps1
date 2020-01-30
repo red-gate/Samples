@@ -8,16 +8,26 @@
 #          Server, or the temporary instance for an image from a backup file).
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
-$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName WIN201601 -InstanceName SQL2014
-$ImageDestination = Get-SqlCloneImageLocation -Path '\\red-gate\data-images'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$MachineName = 'WIN201601'
+$InstanceName = 'SQL2014'
+$ImageLocation = '\\red-gate\data-images'
+$DatabaseName = 'AdventureWorks'
+$PermissionsScriptPath = '\\red-gate\data-scripts\change-permissions.sql'
+$MaskingSetPath = '\\red-gate\masking-sets\clean-pii-data.dmsmaskset'
 
-$MaskingSet= New-SqlCloneMask -Path \\red-gate\masking-sets\clean-pii-data.dmsmaskset
-$PermissionsScript = New-SqlCloneSqlScript -Path \\red-gate\data-scripts\change-permissions.sql
+##########################################################################################
 
-$ImageOperation = New-SqlCloneImage -Name "AdventureWorks-$(Get-Date -Format yyyyMMddHHmmss)-CleansedAndWithPermissionsChanges" `
+Connect-SqlClone -ServerUrl $ServerUrl
+$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName $MachineName -InstanceName $InstanceName
+$ImageDestination = Get-SqlCloneImageLocation -Path $ImageLocation
+
+$MaskingSet = New-SqlCloneMask -Path $MaskingSetPath
+$PermissionsScript = New-SqlCloneSqlScript -Path $PermissionsScriptPath
+
+$ImageOperation = New-SqlCloneImage -Name "$DatabaseName-$(Get-Date -Format yyyyMMddHHmmss)-CleansedAndWithPermissionsChanges" `
     -SqlServerInstance $SqlServerInstance `
-    -DatabaseName 'AdventureWorks' `
+    -DatabaseName $DatabaseName `
     -Destination $ImageDestination `
     -Modifications @($MaskingSet, $PermissionsScript)
 

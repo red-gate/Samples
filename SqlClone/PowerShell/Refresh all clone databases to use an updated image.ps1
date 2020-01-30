@@ -8,13 +8,16 @@
 #          made to them will be lost. The old image will also be removed.
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$ImageName = 'Forex_20170301'
+$NewImageName = 'Forex_20170302'
 
-$oldImageName = 'Forex_20170301'
-$newImageName = 'Forex_20170302'
+##########################################################################################
 
-$oldImage = Get-SqlCloneImage -Name $oldImageName
-$newImage = Get-SqlCloneImage -Name $newImageName
+Connect-SqlClone -ServerUrl $ServerUrl
+
+$oldImage = Get-SqlCloneImage -Name $ImageName
+$newImage = Get-SqlCloneImage -Name $NewImageName
 
 $oldClones = Get-SqlClone | Where-Object {$_.ParentImageId -eq $oldImage.Id}
 

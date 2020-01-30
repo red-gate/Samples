@@ -8,8 +8,13 @@
 #          made to them will be lost.
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
-$image = Get-SqlCloneImage -Name 'ImageName'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$ImageName = 'Forex_20170301'
+
+##########################################################################################
+
+Connect-SqlClone -ServerUrl $ServerUrl
+$image = Get-SqlCloneImage -Name $ImageName
 
 $clones = Get-SqlClone -Image $image
 

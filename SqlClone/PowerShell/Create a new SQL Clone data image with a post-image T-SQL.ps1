@@ -7,16 +7,24 @@
 #          Server, or the temporary instance for an image from a backup file).
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
-$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName WIN201601 -InstanceName SQL2014
-$ImageDestination = Get-SqlCloneImageLocation -Path '\\red-gate\data-images'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$MachineName = 'WIN201601'
+$InstanceName = 'SQL2014'
+$ImageLocation = '\\red-gate\data-images'
+$DatabaseName = 'AdventureWorks'
+
+##########################################################################################
+
+Connect-SqlClone -ServerUrl $ServerUrl
+$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName $MachineName -InstanceName $InstanceName
+$ImageDestination = Get-SqlCloneImageLocation -Path $ImageLocation
 
 $EmailRedactionScript = New-SqlCloneSqlScript -Sql "UPDATE Person.EmailAddress SET EmailAddress=N'removed@example.com'"
 $PhoneRedactionScript = New-SqlCloneSqlScript -Sql "UPDATE Person.PersonPhone SET PhoneNumber=N'000-000-0000'"
 
-$ImageOperation = New-SqlCloneImage -Name "AdventureWorks-$(Get-Date -Format yyyyMMddHHmmss)-PartiallyCleansed" `
+$ImageOperation = New-SqlCloneImage -Name "$DatabaseName-$(Get-Date -Format yyyyMMddHHmmss)-PartiallyCleansed" `
     -SqlServerInstance $SqlServerInstance `
-    -DatabaseName 'AdventureWorks' `
+    -DatabaseName $DatabaseName `
     -Destination $ImageDestination `
     -Modifications @($EmailRedactionScript, $PhoneRedactionScript)
 

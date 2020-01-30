@@ -9,16 +9,18 @@
 #         (the operation uses a virtual mount point into that location).
 ##########################################################################################
 
-$SQLCloneServer= 'http://sql-clone.example.com:14145'
-$TemporaryServerMachine = 'wks-dev1' # Specifies which instance of SQL Server will be temporarily used to restore the backup while creating an image
-$TemporaryServerInstance = 'sql2014' # No additional disk space is required for this temporary restore
-
-Connect-SqlClone -ServerUrl $SQLCloneServer
-
-$TemporaryServer = Get-SqlCloneSqlServerInstance -MachineName $TemporaryServerMachine -InstanceName $TemporaryServerInstance # You can omit the instance parameter if there is only one instance
-
-$SourceDatabase = 'Forex'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$MachineName = 'WIN201601'
+$InstanceName = 'SQL2014'
+$ImageLocation = '\\red-gate\data-images' # Point to the file share we want to use to store the image
+$DatabaseName = 'AdventureWorks'
 $BackupFolder = '\\File1.example.com\Backups\SQL\MSSQL\Backup'
+
+##########################################################################################
+
+Connect-SqlClone -ServerUrl $ServerUrl
+
+$TemporaryServer = Get-SqlCloneSqlServerInstance -MachineName $MachineName -InstanceName $InstanceName # You can omit the instance parameter if there is only one instance
 
 if (!(Test-Path ($BackupFolder)))
   {
@@ -28,7 +30,7 @@ if (!(Test-Path ($BackupFolder)))
 
 # Get the latest backup file for our database (striped backups would be more complex)
 $BackupFiles = Get-ChildItem -Path $BackupFolder  |
-    Where-Object -FilterScript { $_.Name.Substring(0,$SourceDatabase.Length) -eq $SourceDatabase}   # My backup files always start with the database name
+    Where-Object -FilterScript { $_.Name.Substring(0,$DatabaseName.Length) -eq $DatabaseName}   # My backup files always start with the database name
 
 # Now we have a filtered list, sort to get latest
 $BackupFile = $BackupFiles |
@@ -40,10 +42,10 @@ $BackupFileName = $BackupFile.FullName
 #Start a timer
 $elapsed = [System.Diagnostics.Stopwatch]::StartNew()
 
-"Started at {0}, creating data image for database ""{1}"" from backup file ""{2}""" -f $(get-date) , $SourceDatabase , $BackupFileName
+"Started at {0}, creating data image for database ""{1}"" from backup file ""{2}""" -f $(get-date) , $DatabaseName , $BackupFileName
 
-$DataImageName = $SourceDatabase + "_" + (Get-Date -Format "yyyyMMdd") # Prepare a name for the data image, with a timestamp
-$ImageDestination = Get-SqlCloneImageLocation -Path '\\filestore.example.com\SQLClone\SQL Clone Images' # Point to the file share we want to use to store the image
+$DataImageName = $DatabaseName + "_" + (Get-Date -Format "yyyyMMdd") # Prepare a name for the data image, with a timestamp
+$ImageDestination = Get-SqlCloneImageLocation -Path $ImageLocation
 
 $NewImage = New-SqlCloneImage -Name $DataImageName -SqlServerInstance $TemporaryServer -BackupFileName $BackupFileName -Destination $ImageDestination | Wait-SqlCloneOperation # Create the data image and wait for completion
 

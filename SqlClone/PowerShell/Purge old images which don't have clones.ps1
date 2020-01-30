@@ -8,9 +8,18 @@
 #          test this and add protections appropriate to your environment before live use.
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
+$ServerUrl = 'http://sql-clone.example.com:14145'
+$MachineName = 'WIN201601'
+$InstanceName = 'SQL2014'
+$ImageLocation = '\\red-gate\data-images'
+$DatabaseName = 'AdventureWorks'
+$PermissionsScriptPath = '\\red-gate\data-scripts\change-permissions.sql'
+$MaskingSetPath = '\\red-gate\masking-sets\clean-pii-data.dmsmaskset'
+$ImageTimeToLiveDays = 7;
 
-$imageTimeToLiveDays = 7;
+##########################################################################################
+
+Connect-SqlClone -ServerUrl $ServerUrl
 
 $oldImages = Get-SqlCloneImage | Where-Object {$_.CreatedDate -le (Get-Date).AddDays(0-$imageTimeToLiveDays)}
 
