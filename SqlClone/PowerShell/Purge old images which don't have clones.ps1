@@ -8,9 +8,12 @@
 #          test this and add protections appropriate to your environment before live use.
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$ImageTimeToLiveDays = 7; # Images older than this will be deleted
 
-$imageTimeToLiveDays = 7;
+##########################################################################################
+
+Connect-SqlClone -ServerUrl $ServerUrl
 
 $oldImages = Get-SqlCloneImage | Where-Object {$_.CreatedDate -le (Get-Date).AddDays(0-$imageTimeToLiveDays)}
 
@@ -18,7 +21,7 @@ foreach ($image in $oldImages)
 {
     $clones = Get-SqlClone -Image $image
      
-    if (!($clones -eq $null))
+    if (!($null -eq $clones))
     {
         "Will not remove image {0} because it has {1} dependent clone(s)." -f $image.Name, $clones.Count
     }

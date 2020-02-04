@@ -7,15 +7,24 @@
 #          Server, or the temporary instance for an image from a backup file).
 ##########################################################################################
 
-Connect-SqlClone -ServerUrl 'http://sql-clone.example.com:14145'
-$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName WIN201601 -InstanceName SQL2014
-$ImageDestination = Get-SqlCloneImageLocation -Path '\\red-gate\data-images'
+$ServerUrl = 'http://sql-clone.example.com:14145' # Set to your Clone server URL
+$MachineName = 'WIN201601' # The machine name of the SQL Server instance to create the clones on
+$InstanceName = 'SQL2014' # The instance name of the SQL Server instance to create the clones on
+$ImageLocation = '\\red-gate\data-images' # Point to the file share we want to use to store the image
+$MaskingSetPath = '\\red-gate\masking-sets\clean-pii-data.dmsmaskset' # The path to a masking set
+$DatabaseName = 'AdventureWorks' # The name of the database
 
-$MaskingSet= New-SqlCloneMask -Path \\red-gate\masking-sets\clean-pii-data.dmsmaskset
+##########################################################################################
 
-$ImageOperation = New-SqlCloneImage -Name "AdventureWorks-$(Get-Date -Format yyyyMMddHHmmss)-Cleansed" `
+Connect-SqlClone -ServerUrl $ServerUrl
+$SqlServerInstance = Get-SqlCloneSqlServerInstance -MachineName $MachineName -InstanceName $InstanceName
+$ImageDestination = Get-SqlCloneImageLocation -Path $ImageLocation
+
+$MaskingSet = New-SqlCloneMask -Path $MaskingSetPath
+
+$ImageOperation = New-SqlCloneImage -Name "$DatabaseName-$(Get-Date -Format yyyyMMddHHmmss)-Cleansed" `
     -SqlServerInstance $SqlServerInstance `
-    -DatabaseName 'AdventureWorks' `
+    -DatabaseName $DatabaseName `
     -Destination $ImageDestination `
     -Modifications $MaskingSet
 
