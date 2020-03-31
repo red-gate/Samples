@@ -30,6 +30,6 @@ $exportJson = Convert-CollibraJSON -communityName $communityName -instanceName  
 
 Connect-Collibra -collibraAPI $collibraAPI -userName $collibraUserName  -password $collibraPassword
 
-Import-CollibraDatabase -collibraAPI $collibraAPI -synchronizationId $synchronizationId -json $exportJson
+Import-CollibraDatabase -synchronizationId $synchronizationId -json $exportJson
 
-Disconnect-Collibra  -collibraAPI $collibraAPI
+Disconnect-Collibra

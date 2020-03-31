@@ -1,16 +1,16 @@
 
 function Convert-CollibraJSON {
     param (
-        $communityName = "SqlDataCatalog_ImportedDatabase_11234",        
+        $communityName = "SqlDataCatalog_ImportedDatabase_11234",
         [Parameter(Mandatory)][string] $instanceName,
         [Parameter(Mandatory)][string] $databaseName,
         [object[]] $columns
     )
-    
+
     $export = @()
 
     # Community
-   
+
     $communityIdentifier = [pscustomobject]@{
         name = $communityName
     }
@@ -37,16 +37,16 @@ function Convert-CollibraJSON {
     }
 
     $export += [pscustomobject]@{
-        resourceType = "Domain";        
+        resourceType = "Domain";
         identifier   = $systemsAndDatabasesIdentifier;
         type         = $dataAssetDomainType
     }
     $export += [pscustomobject]@{
-        resourceType = "Domain";        
+        resourceType = "Domain";
         identifier   = $physicalModelIdentifier;
         type         = $dataAssetDomainType
     }
-    
+
     # Instance and database
 
     $acceptedStatus = [pscustomobject]@{
@@ -83,8 +83,8 @@ function Convert-CollibraJSON {
         }
     }
 
-    $columns | Group-Object schemaName | ForEach-Object { 
-        
+    $columns | Group-Object schemaName | ForEach-Object {
+
 
         # schema
 
@@ -107,7 +107,7 @@ function Convert-CollibraJSON {
             }
         }
 
-        $_.group | Group-Object tableName | ForEach-Object { 
+        $_.group | Group-Object tableName | ForEach-Object {
             # table
 
             $tableName = $_.Name
@@ -128,16 +128,16 @@ function Convert-CollibraJSON {
                 }
             }
 
-            $_.group | ForEach-Object { 
+            $_.group | ForEach-Object {
                 # column
-    
+
                 $columnName = $_.columnName
                 $tagNames = $_.tags.name
 
-                if($null -ne $tagNames){
+                if ($null -ne $tagNames) {
                     $tagNames = $tagNames.Replace(" ", "_")
                 }
-                $tagNames =  $tagNames ?? @()
+                $tagNames = $tagNames ?? @()
 
                 $columnIdentifier = [pscustomobject]@{
                     name   = "$instanceName>$databaseName>$schemaName>$tableName>$columnName";
@@ -154,14 +154,14 @@ function Convert-CollibraJSON {
                     relations    = [pscustomobject]@{
                         "00000000-0000-0000-0000-000000007042:TARGET" = @($tableIdentifier)
                     };
-                    tags = $tagNames
+                    tags         = $tagNames
                 }
-    
+
             }
 
         }
 
-    } 
+    }
 
     return $export
 }
