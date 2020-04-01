@@ -7,7 +7,7 @@ $collibraUserName = "[collibra user name here]"
 $collibraPassword = "[collibra user password]"
 
 . ".\convert-to-collibra.ps1"
-. ".\import-collibra.ps1"
+. ".\collibra-api.ps1"
 
 Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile './data-catalog.psm1' -Headers @{"Authorization" = "Bearer $authToken" }
 
