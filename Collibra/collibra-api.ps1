@@ -42,7 +42,29 @@ function Import-BatchCollibraDatabase {
         fileName = 'import_file'
         file     = Get-Item -Path  '.\export.json'
     }
-    Invoke-RestMethod -Uri $Uri -Method Post -Form $Form -WebSession $Script:session -ContentType 'multipart/form-data'
+    $response = Invoke-RestMethod -Uri $Uri -Method Post -Form $Form -WebSession $Script:session -ContentType 'multipart/form-data'
+    Wait-Operation -jobId $response.id
+}
+
+function Wait-Operation {
+    param (
+        [Parameter(Mandatory)][string] $jobId
+    )
+    $TimeEnd = (Get-Date).AddSeconds(60)
+
+    Do {
+        Start-Sleep -Seconds 1
+        $completedStates = @( "CANCELING", "COMPLETED", "CANCELED", "ERROR")
+
+        #https://redgate.collibra.com/rest/2.0/jobs/86e42720-23f6-462e-941d-486416e025d9
+        $Uri = "$Script:collibaUri/jobs/$jobId"
+        $result = Invoke-RestMethod -Uri $Uri -Method Get -WebSession $Script:session -ContentType 'application/json'
+
+        if ($result.state -in $completedStates ) {
+            return
+        }
+    }
+    Until ((Get-Date) -ge $TimeEnd)
 }
 
 function Complete-CollibraSync {
@@ -50,8 +72,9 @@ function Complete-CollibraSync {
         [Parameter(Mandatory)][string] $synchronizationId
     )
     $Uri = "$Script:collibaUri/import/synchronize/$synchronizationId/finalize/job"
-    Invoke-RestMethod -Uri $uri -Method Post -WebSession $Script:session
-    $Script:session = $null
+    $Form = @{
+    }
+    Invoke-RestMethod -Uri $uri -Method Post -Form $Form -WebSession $Script:session -ContentType 'multipart/form-data'
 }
 
 function Disconnect-Collibra {
