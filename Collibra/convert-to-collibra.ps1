@@ -32,19 +32,20 @@ function Convert-CollibraJSON {
         community = $communityIdentifier
     }
 
-    $dataAssetDomainType = [pscustomobject]@{
-        name = "Data Asset Domain"
+    $export += [pscustomobject]@{
+        resourceType = "Domain";
+        identifier   = $systemsAndDatabasesIdentifier;
+        type         = [pscustomobject]@{
+            name = "Technology Asset Domain"
+        }
     }
 
     $export += [pscustomobject]@{
         resourceType = "Domain";
-        identifier   = $systemsAndDatabasesIdentifier;
-        type         = $dataAssetDomainType
-    }
-    $export += [pscustomobject]@{
-        resourceType = "Domain";
         identifier   = $physicalModelIdentifier;
-        type         = $dataAssetDomainType
+        type         = [pscustomobject]@{
+            name = "Physical Data Dictionary"
+        }
     }
 
     # Instance and database
