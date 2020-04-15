@@ -9,6 +9,14 @@ function Convert-CollibraJSON {
 
     $export = @()
 
+    # Constants
+
+    $personallyIdentifiableInformationTags = @(
+        "Confidential_-_GDPR",
+        "Highly_Confidential_-_GDPR"
+    )
+
+
     # Community
 
     $communityIdentifier = [pscustomobject]@{
@@ -141,6 +149,9 @@ function Convert-CollibraJSON {
                     name   = "$instanceName>$databaseName>$schemaName>$tableName>$columnName";
                     domain = $physicalModelIdentifier
                 };
+
+                $isPii = ($personallyIdentifiableInformationTags.Where({ $tagNames.Contains($_) }, 'First').Count -gt 0)
+
                 $export += [pscustomobject]@{
                     resourceType = "Asset";
                     identifier   = $columnIdentifier;
@@ -152,7 +163,14 @@ function Convert-CollibraJSON {
                     relations    = [pscustomobject]@{
                         "00000000-0000-0000-0000-000000007042:TARGET" = @($tableIdentifier)
                     };
-                    tags         = $tagNames
+                    tags         = $tagNames;
+                    attributes   = [pscustomobject]@{
+                        "Personally Identifiable Information" = @(
+                            [pscustomobject]@{
+                                value = $isPii
+                            }
+                        )
+                    }
                 }
 
             }
