@@ -132,13 +132,10 @@ function Convert-CollibraJSON {
                 # column
 
                 $columnName = $_.columnName
-                $tagNames = $_.tags.name
-
-                if ($null -ne $tagNames) {
-                    $tagNames = $tagNames.Replace(" ", "_")
+                $tagNames = @()
+                Foreach ($tag in $_.tags) {
+                    $tagNames += ($tag.name.Replace(" ", "_"))
                 }
-                $tagNames = $tagNames ?? @()
-
                 $columnIdentifier = [pscustomobject]@{
                     name   = "$instanceName>$databaseName>$schemaName>$tableName>$columnName";
                     domain = $physicalModelIdentifier
