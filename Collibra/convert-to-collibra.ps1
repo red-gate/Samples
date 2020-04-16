@@ -16,6 +16,15 @@ function Convert-CollibraJSON {
         "Highly_Confidential_-_GDPR"
     )
 
+    $securityClassificationMappings = @{
+        "Confidential" = "Confidential";
+        "Confidential_-_GDPR" = "Confidential";
+        "Highly_Confidential" = "Highly Confidential";
+        "Highly_Confidential_-_GDPR" = "Highly Confidential";
+        "General" = "Internal Only";
+        "Public" = "Public";
+    }
+
 
     # Community
 
@@ -150,7 +159,24 @@ function Convert-CollibraJSON {
                     domain = $physicalModelIdentifier
                 };
 
+                # Attributes
+                $attributes = [pscustomobject]@{}
+
+                $securityClassificationTag = $tagNames.Where({ $securityClassificationMappings.ContainsKey($_) }, 'First')
+                if($securityClassificationTag) {
+                    $attributes | Add-Member -MemberType NoteProperty -Name "Security Classification" -Value @(
+                        [pscustomobject]@{
+                            value = $securityClassificationMappings[$securityClassificationTag][0]
+                        }
+                    )
+                }
+
                 $isPii = ($personallyIdentifiableInformationTags.Where({ $tagNames.Contains($_) }, 'First').Count -gt 0)
+                $attributes | Add-Member -MemberType NoteProperty -Name "Personally Identifiable Information" -Value  @(
+                    [pscustomobject]@{
+                        value = $isPii
+                    }
+                )
 
                 $export += [pscustomobject]@{
                     resourceType = "Asset";
@@ -164,13 +190,7 @@ function Convert-CollibraJSON {
                         "00000000-0000-0000-0000-000000007042:TARGET" = @($tableIdentifier)
                     };
                     tags         = $tagNames;
-                    attributes   = [pscustomobject]@{
-                        "Personally Identifiable Information" = @(
-                            [pscustomobject]@{
-                                value = $isPii
-                            }
-                        )
-                    }
+                    attributes   = $attributes
                 }
 
             }
