@@ -1,5 +1,3 @@
-
-#$Script:session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 function Connect-Collibra {
     param (
         [Parameter(Mandatory)][string] $collibraAPI,
@@ -56,7 +54,6 @@ function Wait-Operation {
         Start-Sleep -Seconds 1
         $completedStates = @( "CANCELING", "COMPLETED", "CANCELED", "ERROR")
 
-        #https://redgate.collibra.com/rest/2.0/jobs/86e42720-23f6-462e-941d-486416e025d9
         $Uri = "$Script:collibaUri/jobs/$jobId"
         $result = Invoke-RestMethod -Uri $Uri -Method Get -WebSession $Script:session -ContentType 'application/json'
 
