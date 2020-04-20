@@ -6,8 +6,8 @@ $collibraAPI = 'https://redgate.collibra.com/rest/2.0'
 $collibraUserName = "[collibra user name here]"
 $collibraPassword = "[collibra user password]"
 
-. ".\convert-to-collibra.ps1"
-. ".\collibra-api.ps1"
+. ".\ConvertTo-Collibra.ps1"
+. ".\Collibra-Api.ps1"
 
 function export-database(
     [Parameter(Mandatory)][string] $instanceName,
