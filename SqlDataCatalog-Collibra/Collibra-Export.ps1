@@ -9,7 +9,7 @@ $collibraPassword = "[collibra user password]"
 . ".\ConvertTo-Collibra.ps1"
 . ".\Collibra-Api.ps1"
 
-function export-database(
+function Export-Database(
     [Parameter(Mandatory)][string] $instanceName,
     [Parameter(Mandatory)][string] $databaseName
 ) {
@@ -36,7 +36,7 @@ Connect-Collibra -collibraAPI $collibraAPI -userName $collibraUserName  -passwor
 
 Get-ClassificationInstance
 | ForEach-Object { Get-ClassificationDatabase -InstanceName $_.Name }
-| ForEach-Object { export-database -instanceName $_.instanceName -databaseName $_.name }
+| ForEach-Object { Export-Database -instanceName $_.instanceName -databaseName $_.name }
 
 Complete-CollibraSync -synchronizationId $synchronizationId
 Disconnect-Collibra
