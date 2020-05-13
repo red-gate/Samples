@@ -15,9 +15,13 @@ Connect-SqlDataCatalog -AuthToken $authToken -ServerUrl $serverUrl
 $instanceName = 'sql-server1.domain.com'
 $databaseName = 'AdventureWorks'
 
-# a masking set file that will be modified by this script, you should generate it using Redgate Data Masker.
-$inputMaskingSetPath = "AdventureWorks.DMSMaskSet"
-$outputMaskingSetPath = "AdventureWorks Generated.DMSMaskSet"
+# a masking set file that will be created by this script.
+$maskingSetPath = "AdventureWorks.DMSMaskSet"
+
+
+# Generate the masking file.  Requires Data masker version >= 7.0.17
+& 'C:\Program Files\Red Gate\Data Masker for SQL Server 7\DataMaskerCmdLine.exe' build using-windows-auth -m $maskingSetPath -l C:\Scripts\Logs -i $instanceName -d $databaseName
+
 
 # Initial masking set file
 $maskingDataSetTagCategoryId = ((Get-ClassificationTaxonomy).TagCategories |
@@ -27,7 +31,7 @@ Write-Output "Getting columns"
 $allColumns = Get-ClassificationColumn -instanceName $instanceName -databaseName $databaseName
 
 Write-Output "Finished getting columns"
-[xml]$maskingSet = Get-Content -Path $inputMaskingSetPath
+[xml]$maskingSet = Get-Content -Path $maskingSetPath
 
 $nextRuleNumber = 1 + (Get-HighestRuleId -MaskingSet $maskingSet)
 
@@ -121,7 +125,7 @@ foreach ($schema in $schemas) {
     }
 }
 
-$maskingSet.Save("$PSScriptRoot\$outputMaskingSetPath") | Write-Output
+$maskingSet.Save("$PSScriptRoot\$maskingSetPath") | Write-Output
 
-Write-Output "Masking set generated as $PSScriptRoot\$outputMaskingSetPath\n"
-Get-ChildItem $PSScriptRoot\$outputMaskingSetPath | Write-Output
+Write-Output "Masking set generated as $PSScriptRoot\$maskingSetPath\n"
+Get-ChildItem $PSScriptRoot\$maskingSetPath | Write-Output
