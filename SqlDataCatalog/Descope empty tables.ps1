@@ -2,6 +2,8 @@ $authToken = "[Your auth token]"
 $serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if you've configured SSL
 $instanceName = 'sql-server1.domain.com'
 $databaseName = 'AdventureWorks'
+$scopeCategory = "Classification Scope"
+$unusedTag = "Out of Scope - Unused"
 
 Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
     -Headers @{"Authorization" = "Bearer $authToken" }
@@ -21,5 +23,4 @@ $emptyTableColumnsInDboSchema = $emptyTableColumns | Where-Object { $_.schemaNam
 
 # Add-ClassificationColumnTag does a non-destructive update on all these columns (i.e. other tags are not removed)
 $emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Sensitivity" -tags "General"
-$emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Classification Scope" `
-    -tags "Out of Scope - Unused"
+$emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category $scopeCategory -tags $unusedTag
