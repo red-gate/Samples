@@ -24,3 +24,6 @@ $emptyTableColumnsInDboSchema = $emptyTableColumns | Where-Object { $_.schemaNam
 # Add-ClassificationColumnTag does a non-destructive update on all these columns (i.e. other tags are not removed)
 $emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Sensitivity" -tags "General"
 $emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category $scopeCategory -tags $unusedTag
+
+$tablesNoLongerEmpty = $allColumns | Where-Object {($_.tags.Name -eq $unusedTag) -and ($_.tableRowCount -ne 0)}
+$tablesNoLongerEmpty | Set-ClassificationColumnTag -category $scopeCategory -tags @()
