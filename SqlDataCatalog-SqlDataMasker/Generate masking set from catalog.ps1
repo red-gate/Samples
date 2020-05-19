@@ -20,7 +20,7 @@ $maskingSetPath = "AdventureWorks.DMSMaskSet"
 
 
 # Generate the masking file.  Requires Data masker version >= 7.0.17
-if (-not (Test-Path -Path "C:\Program Files\Red Gate\Data Masker for SQL Server 7\DataMaskerCmdLine.exe")) {
+if (-not (Test-Path -Path "C:\Program Files\Red Gate\Data Masker for SQL Server 7\DataMaskerCmdLine.exe" -PathType leaf)) {
     throw "To use this script, please install Data Masker for SQL Server version 7.0.17 or later"
 }
 & 'C:\Program Files\Red Gate\Data Masker for SQL Server 7\DataMaskerCmdLine.exe' build using-windows-auth -m $maskingSetPath -l C:\Scripts\Logs -i $instanceName -d $databaseName
