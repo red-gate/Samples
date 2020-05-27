@@ -152,7 +152,7 @@ $databases | ForEach-Object {
     script:upsertAssets `
         -instanceId $database.instanceId `
         -instanceName $database.instanceName.Replace('.', '_').Replace(',', '_') `
-        -databaseId $databaseId `
+        -databaseId $database.id `
         -databaseName $database.name.Replace('.', '_').Replace(',', '_') `
         -tags $export
 }
