@@ -42,6 +42,7 @@ function script:linkAssets() {
         $body = @($instanceDatabaseAssociations[$sourceAssetId] |
             Select-Object -Property @{ l='id'; e={$_} },@{ l='relation'; e={ 'RelatedLinkType' } }) |
             ConvertTo-Json
+        If (-not $body.StartsWith('[')) { $body = "[$body]" } # PowerShell 5.1 compresses arrays if they contains a single element
         return Invoke-WebRequest `
             -Uri "https://$OneTrustHostName/api/inventory/v2/inventories/$sourceAssetId/relations" `
             -Method POST `
