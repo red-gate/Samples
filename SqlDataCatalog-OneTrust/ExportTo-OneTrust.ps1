@@ -24,8 +24,6 @@ param (
 #region OneTrust Integration
 $script:upsertAssetBaseUri = "https://$OneTrustHostName/api/inventory/v2/inventories/assets/reference/"
 $createdInstances = @{}
-$DATABASE_ID = 'Database Id'
-$DATABASE_NAME = 'Database Name'
 $DATA_SUBJECT = 'Data Subject'
 $DATA_ELEMENT = 'Data Element'
 $instanceDatabaseAssociations = @{}
@@ -68,37 +66,34 @@ function script:upsertAsset($id, $name, $type) {
         -ContentType 'application/json' -Body $body
     return ($response.Content | ConvertFrom-Json).data.id  
 }
-function script:upsertAssets($instanceId, $database) {
-
-    $databaseAssetName = $database.$DATABASE_NAME | Select-Object -First 1
-    $instanceAssetName = $databaseAssetName.Substring(0, $databaseAssetName.IndexOf('.'))
-    $databaseAssetName = $databaseAssetName.Substring($instanceAssetName.Length + 1)
+function script:upsertAssets($instanceId, $instanceName, $databaseId, $databaseName, $tags) {
 
     If (-not ($createdInstances.ContaInsKey($instanceId))) {
-        $assetId = script:upsertAsset -id $instanceId -name $instanceAssetName -type 'Instance'
+        $assetId = script:upsertAsset -id $instanceId -name $instanceName -type 'Instance'
         $createdInstances.Add($instanceId, $assetId)
     }
     $instanceAssetId = $createdInstances[$instanceId]
 
     $databaseAssetId = script:upsertAsset `
-        -id ($database.$DATABASE_ID | Select-Object -First 1) `
-        -name $databaseAssetName `
+        -id $databaseId `
+        -name $databaseName `
         -type 'Database'
 
     script:associate -databaseId $databaseAssetId -withInstanceId $instanceAssetId
     
-    foreach ($dataset in $database) {
+    foreach ($dataset in $tags) {
         $dataSubjects = $dataset.$DATA_SUBJECT
         $dataElements = $dataset.$DATA_ELEMENT
 
-        foreach ($dataSubject in $dataSubjects -split '|') {
-            foreach ($dataElement in $dataElements -split '|') {
-
+        $ObjectArray = [System.Collections.ArrayList]@()
+        foreach ($dataSubject in $dataSubjects.Split('|')) {
+            foreach ($dataElement in $dataElements.Split('|')) {
+        
+                "$dataSubject = $dataElement"
+                $ObjectArray.Add(@{$dataSubject = $dataElement})
             }
         }
-
-        "$dataSubject"
-        "$dataElement"
+        $ObjectArray
     }
 }
 #endregion
@@ -147,12 +142,6 @@ $databases | ForEach-Object {
         }) |
     Group-Object $DataSubject | 
     Select-Object -Property @{
-        l = $DATABASE_NAME
-        e = { $database.instanceName.Replace('.', '_').Replace(',', '_') + '.' + $database.name }
-    }, @{
-        l = $DATABASE_ID
-        e = { $database.id }
-    }, @{
         l = $DATA_SUBJECT
         e = { $_.Name } 
     }, @{
@@ -160,7 +149,12 @@ $databases | ForEach-Object {
         e = { ($_.Group.$DataElements.name | Select-Object -Unique | Sort-Object) -join "|" } 
     }
 
-    script:upsertAssets -instanceId $database.instanceId -database $export
+    script:upsertAssets `
+        -instanceId $database.instanceId `
+        -instanceName $database.instanceName.Replace('.', '_').Replace(',', '_') `
+        -databaseId $databaseId `
+        -databaseName $database.name.Replace('.', '_').Replace(',', '_') `
+        -tags $export
 }
 
 script:linkAssets
