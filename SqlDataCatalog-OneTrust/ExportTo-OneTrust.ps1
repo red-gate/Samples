@@ -51,6 +51,44 @@ function script:linkAssets() {
             -Body $body
     }
 }
+function script:linkDataElements($assetId, $tags) {
+    $ObjectArray = [System.Collections.ArrayList]@()
+    foreach ($dataset in $tags) {
+        $dataSubjects = $dataset.$DATA_SUBJECT
+        $dataElements = $dataset.$DATA_ELEMENT
+
+        foreach ($dataSubject in $dataSubjects.Split('|')) {
+            foreach ($dataElement in $dataElements.Split('|')) {
+        
+                $ObjectArray.Add(@{
+                    'dataElement' = @{ 'value' = $dataElement }
+                    'dataSubjectType' = @{ 'value' = $dataSubject }
+                }) | Out-Null
+            }
+        }
+    }
+    $body = ($ObjectArray | ConvertTo-Json)
+    
+    $headers = @{
+        'content-type' = 'application/json'
+        'apikey' = $OneTrustApiKey
+    }
+    $response = Invoke-WebRequest `
+        -Uri "https://$OneTrustHostName/api/inventory/v2/inventories/$assetId/personal-data" `
+        -Method POST `
+        -Headers $headers `
+        -ContentType 'application/json' `
+        -Body $body `
+        -ErrorAction SilentlyContinue `
+        | ConvertFrom-Json
+
+    If ($response.errors.detail) {
+        Write-Error "Error from OneTrust when linking data elements.
+        Please ensure that you have created the expected Data Subjects and Data Elements
+        in OneTrust before running this script. Error message: $response.errors.detail"
+    }
+
+}
 function script:upsertAsset($id, $name, $type) {
     $upsertAssetUri = $script:upsertAssetBaseUri + $id
     $headers = @{
@@ -81,21 +119,7 @@ function script:upsertAssets($instanceId, $instanceName, $databaseId, $databaseN
         -type 'Database'
 
     script:associate -databaseId $databaseAssetId -withInstanceId $instanceAssetId
-    
-    foreach ($dataset in $tags) {
-        $dataSubjects = $dataset.$DATA_SUBJECT
-        $dataElements = $dataset.$DATA_ELEMENT
-
-        $ObjectArray = [System.Collections.ArrayList]@()
-        foreach ($dataSubject in $dataSubjects.Split('|')) {
-            foreach ($dataElement in $dataElements.Split('|')) {
-        
-                "$dataSubject = $dataElement"
-                $ObjectArray.Add(@{$dataSubject = $dataElement})
-            }
-        }
-        $ObjectArray
-    }
+    script:linkDataElements -assetId $databaseAssetId -tags $tags
 }
 #endregion
 
