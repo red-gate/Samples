@@ -9,7 +9,7 @@ param (
     $OneTrustHostName = '[Your OneTrust host name here]',
     $OneTrustApiKey = '[Your OneTrust API Key here]',
     $AssetOrganization = 'Redgate',
-    $AssetLocation = 'United States'
+    $AssetLocation = 'United Kingdom'
 )
 
 #region OneTrust Integration
@@ -42,7 +42,7 @@ function script:linkAssets() {
             -Body $body
     }
 }
-function script:linkDataElements($assetId, $tags) {
+function script:linkDataElements($databaseName, $assetId, $tags) {
     $ObjectArray = [System.Collections.ArrayList]@()
     foreach ($dataset in $tags) {
         $dataSubjects = $dataset.$DATA_SUBJECT
@@ -59,24 +59,30 @@ function script:linkDataElements($assetId, $tags) {
         }
     }
     $body = ($ObjectArray | ConvertTo-Json)
+    If (-not $body.StartsWith('[')) { $body = "[$body]" } # PowerShell 5.1 compresses arrays if they contains a single element
     
     $headers = @{
         'content-type' = 'application/json'
         'apikey' = $OneTrustApiKey
     }
-    $response = Invoke-WebRequest `
-        -Uri "https://$OneTrustHostName/api/inventory/v2/inventories/$assetId/personal-data" `
-        -Method POST `
-        -Headers $headers `
-        -ContentType 'application/json' `
-        -Body $body `
-        -ErrorAction SilentlyContinue `
-        | ConvertFrom-Json
 
-    If ($response.errors.detail) {
-        Write-Error "Error from OneTrust when linking data elements.
+    try {
+        return Invoke-WebRequest `
+            -Uri "https://$OneTrustHostName/api/inventory/v2/inventories/$assetId/personal-data" `
+            -Method POST `
+            -Headers $headers `
+            -ContentType 'application/json' `
+            -Body $body `
+            | ConvertFrom-Json
+    }
+    catch
+    {
+        "Error from OneTrust when linking data elements to database $databaseName.
         Please ensure that you have created the expected Data Subjects and Data Elements
-        in OneTrust before running this script. Error message: $response.errors.detail"
+        in OneTrust before running this script. The following data subject and elements were
+        being sent: 
+        $body
+        ---"
     }
 
 }
@@ -110,7 +116,7 @@ function script:upsertAssets($instanceId, $instanceName, $databaseId, $databaseN
         -type 'Database'
 
     script:associate -databaseId $databaseAssetId -withInstanceId $instanceAssetId
-    script:linkDataElements -assetId $databaseAssetId -tags $tags
+    script:linkDataElements -databaseName $databaseName -assetId $databaseAssetId -tags $tags
 }
 #endregion
 
