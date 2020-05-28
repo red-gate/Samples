@@ -12,5 +12,5 @@ If your taxonomy differs, this Cmdlet allows you to redefine what you would call
 ## Please note that
 
 - the Subject names must match those registered in OneTrust (Data Mapping - Setup - Inventory Manager - Data Subject Types - Key)
-- the Element names must match those registed in OneTrust (Data Mapping - Setup - Inventory Manager - Data Elements - Key)
+- the Element names must match those registered in OneTrust (Data Mapping - Setup - Inventory Manager - Data Elements - Key)
 - there must be a registed Asset type called "Instance" in OneTrust (Data Mapping - Setup - Inventory Manager - Asset Attributes - Type)
