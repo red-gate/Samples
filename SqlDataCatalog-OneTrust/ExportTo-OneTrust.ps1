@@ -14,6 +14,11 @@ param (
 
 #region OneTrust Integration
 $script:upsertAssetBaseUri = "https://$OneTrustHostName/api/inventory/v2/inventories/assets/reference/"
+$script:oneTrustApiHeaders = @{
+    'content-type' = 'application/json'
+    'apikey' = $OneTrustApiKey
+}
+
 $createdInstances = @{}
 $DATA_SUBJECT = 'Data Subject'
 $DATA_ELEMENT = 'Data Element'
@@ -25,10 +30,6 @@ function script:associate($databaseId, $withInstanceId) {
     $instanceDatabaseAssociations[$withInstanceId].Add($databaseId)
 }
 function script:linkAssets() {
-    $headers = @{
-        'content-type' = 'application/json'
-        'apikey' = $OneTrustApiKey
-    }
     foreach ($sourceAssetId in $instanceDatabaseAssociations.Keys) {
         $body = @($instanceDatabaseAssociations[$sourceAssetId] |
             Select-Object -Property @{ l='id'; e={$_} },@{ l='relation'; e={ 'RelatedLinkType' } }) |
@@ -37,7 +38,7 @@ function script:linkAssets() {
         return Invoke-WebRequest `
             -Uri "https://$OneTrustHostName/api/inventory/v2/inventories/$sourceAssetId/relations" `
             -Method POST `
-            -Headers $headers `
+            -Headers $script:oneTrustApiHeaders `
             -ContentType 'application/json' `
             -Body $body
     }
@@ -61,16 +62,11 @@ function script:linkDataElements($databaseName, $assetId, $tags) {
     $body = ($ObjectArray | ConvertTo-Json)
     If (-not $body.StartsWith('[')) { $body = "[$body]" } # PowerShell 5.1 compresses arrays if they contains a single element
     
-    $headers = @{
-        'content-type' = 'application/json'
-        'apikey' = $OneTrustApiKey
-    }
-
     try {
         return Invoke-WebRequest `
             -Uri "https://$OneTrustHostName/api/inventory/v2/inventories/$assetId/personal-data" `
             -Method POST `
-            -Headers $headers `
+            -Headers $script:oneTrustApiHeaders `
             -ContentType 'application/json' `
             -Body $body `
             | ConvertFrom-Json
@@ -82,28 +78,31 @@ function script:linkDataElements($databaseName, $assetId, $tags) {
         in OneTrust before running this script. The following data subject and elements were
         being sent: 
         $body
+        ---
+        Exception message: $_
         ---"
     }
 
 }
 function script:upsertAsset($id, $name, $type) {
     $upsertAssetUri = $script:upsertAssetBaseUri + $id
-    $headers = @{
-        'content-type' = 'application/json'
-        'apikey' = $OneTrustApiKey
-    }
     $body = @{
         'name' = $name
         'organization' = @{ 'value' = $AssetOrganization }
         'location' = @{ 'value' = $AssetLocation }
         'type' = @(@{ 'value' = $type })
     } | ConvertTo-Json
-    $response = Invoke-WebRequest -Uri $upsertAssetUri -Method PUT -Headers $headers `
-        -ContentType 'application/json' -Body $body
+    
+    $response = Invoke-WebRequest `
+        -Uri $upsertAssetUri `
+        -Method PUT `
+        -Headers $script:oneTrustApiHeaders `
+        -ContentType 'application/json' `
+        -Body $body
+    
     return ($response.Content | ConvertFrom-Json).data.id  
 }
 function script:upsertAssets($instanceId, $instanceName, $databaseId, $databaseName, $tags) {
-
     If (-not ($createdInstances.ContaInsKey($instanceId))) {
         $assetId = script:upsertAsset -id $instanceId -name $instanceName -type 'Instance'
         $createdInstances.Add($instanceId, $assetId)
@@ -120,7 +119,8 @@ function script:upsertAssets($instanceId, $instanceName, $databaseId, $databaseN
 }
 #endregion
 
-Write-Host $ServerUrl
+Write-Host "SQL Data Catalog API Server: $ServerUrl"
+Write-Host "OneTrust API Server: $OneTrustHostName"
 
 #region Load Redgate Data Catalog Module
 $moduleName = 'RedgateDataCatalog.psm1'
