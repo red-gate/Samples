@@ -27,7 +27,7 @@ function script:associate($databaseId, $withInstanceId) {
     If (-not $instanceDatabaseAssociations.ContainsKey($withInstanceId)) {
         $instanceDatabaseAssociations.Add($withInstanceId, [System.Collections.ArrayList]@())
     }
-    $instanceDatabaseAssociations[$withInstanceId].Add($databaseId)
+    $instanceDatabaseAssociations[$withInstanceId].Add($databaseId) | Out-Null
 }
 function script:linkAssets() {
     foreach ($sourceAssetId in $instanceDatabaseAssociations.Keys) {
@@ -120,7 +120,7 @@ function script:upsertAssets($instanceId, $instanceName, $databaseId, $databaseN
 #endregion
 
 Write-Host "SQL Data Catalog API Server: $ServerUrl"
-Write-Host "OneTrust API Server: $OneTrustHostName"
+Write-Host "OneTrust API Server: https://$OneTrustHostName/api"
 
 #region Load Redgate Data Catalog Module
 $moduleName = 'RedgateDataCatalog.psm1'
