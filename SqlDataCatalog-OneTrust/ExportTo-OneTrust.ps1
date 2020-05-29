@@ -49,8 +49,8 @@ function script:linkDataElements($databaseName, $assetId, $tags) {
         $dataSubjects = $dataset.$DATA_SUBJECT
         $dataElements = $dataset.$DATA_ELEMENT
 
-        foreach ($dataSubject in $dataSubjects.Split('|')) {
-            foreach ($dataElement in $dataElements.Split('|')) {
+        foreach ($dataSubject in $dataSubjects) {
+            foreach ($dataElement in $dataElements) {
         
                 $ObjectArray.Add(@{
                     'dataElement' = @{ 'value' = $dataElement }
@@ -155,7 +155,7 @@ $databases | ForEach-Object {
                 ($_.tags | 
                     Where-Object { $_.categoryId -eq $DataSubjectId } | 
                     Sort-Object "name" | 
-                    Select-Object -ExpandProperty "name") -join "|"
+                    Select-Object -ExpandProperty "name")
             } 
         },
         @{
@@ -168,7 +168,7 @@ $databases | ForEach-Object {
         e = { $_.Name } 
     }, @{
         l = $DATA_ELEMENT
-        e = { ($_.Group.$DataElements.name | Select-Object -Unique | Sort-Object) -join "|" } 
+        e = { ($_.Group.$DataElements.name | Select-Object -Unique | Sort-Object) } 
     }
 
     script:upsertAssets `
