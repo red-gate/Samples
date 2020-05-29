@@ -115,7 +115,11 @@ function script:upsertAssets($instanceId, $instanceName, $databaseId, $databaseN
         -type 'Database'
 
     script:associate -databaseId $databaseAssetId -withInstanceId $instanceAssetId
-    script:linkDataElements -databaseName $databaseName -assetId $databaseAssetId -tags $tags
+    script:linkDataElements `
+        -databaseName $databaseName `
+        -assetId $databaseAssetId `
+        -tags $tags |
+        Out-Null
 }
 #endregion
 
