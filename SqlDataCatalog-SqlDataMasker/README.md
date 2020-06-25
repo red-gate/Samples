@@ -13,24 +13,11 @@ This Powershell demonstrates how you'd tag a column of the `AdventureWorks` data
 
 ## Generate masking set from catalog.ps1
 
-This Powershell script takes as input a masking set definition file.
+At the top of the file, paste in your auth token from Data Catalog and the server url where your Data Catalog instance lives.
 
-```powershell
-$inputMaskingSetPath = "AdventureWorks.DMSMaskSet"
-```
+This Powershell script will then process the columns of a given database (see the section `# local config`) and generate a masking set file, using the taxonomy in Data Catalog.
 
-It will load this file, and then process the columns of the given instance and database
-
-```powershell
-$instanceName = 'sql-server1.domain.com'
-$databaseName = 'AdventureWorks'
-```
-
-to generate a masking set which will be saved into the output file.
-
-```powershell
-$outputMaskingSetPath = "AdventureWorks Generated.DMSMaskSet"
-```
+In the config section, you will also find the `$maskingSetPath` variable, which is the output path to the file that the script will produce.
 
 ## DataMaskerHelpers.ps1
 
