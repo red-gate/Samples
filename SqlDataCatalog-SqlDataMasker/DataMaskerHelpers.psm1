@@ -175,9 +175,28 @@ function Invoke-MaskDatabase {
     DataMaskerCommandLineExecutable run --parfile $ParameterFile 
 }
 
+function Get-MaskingTaxonomyTags {
+    return @(
+        "FirstName",
+        "Surname",
+        "FullName",
+        "DateOfBirth",
+        "EmailAddress",
+        "StreetAddress",
+        "City",
+        "State",
+        "PostalCode",
+        "County",
+        "CardNumber",
+        "BankSortCode",
+        "PhoneNumber"
+    )
+}
+
 Export-ModuleMember Invoke-MaskDatabase
 Export-ModuleMember ConvertTo-MaskingSetUsingSqlAuth
 Export-ModuleMember ConvertTo-MaskingSetUsingWindowsAuth
 Export-ModuleMember Import-ColumnTemplateMapping
 Export-ModuleMember Register-DataMaskerInstallation
 Export-ModuleMember Test-DataMaskerExists
+Export-ModuleMember Get-MaskingTaxonomyTags
