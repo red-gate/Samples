@@ -32,7 +32,7 @@ function Register-DataMaskerInstallation {
     $global:DataMaskerCommandLinePath = $InstalledCommandLinePath
 }
 
-function Build-ColumnTemplateMapping {
+function Import-ColumnTemplateMapping {
     param (
         [Parameter(Mandatory)]
         [string]
@@ -83,7 +83,7 @@ function Build-ColumnTemplateMapping {
         --log-directory $LogDirectory
 }
 
-function Build-MaskingSet-UsingWindowsAuth {
+function ConvertTo-MaskingSetUsingWindowsAuth {
     param (
         [Parameter(Mandatory)]
         [string]
@@ -119,7 +119,7 @@ function Build-MaskingSet-UsingWindowsAuth {
     return $ParFilePath
 }
 
-function Build-MaskingSet-UsingSqlAuth {
+function ConvertTo-MaskingSetUsingSqlAuth {
     param (
         [Parameter(Mandatory)]
         [string]
@@ -176,8 +176,8 @@ function Invoke-MaskDatabase {
 }
 
 Export-ModuleMember Invoke-MaskDatabase
-Export-ModuleMember Build-MaskingSet-UsingSqlAuth
-Export-ModuleMember Build-MaskingSet-UsingWindowsAuth
-Export-ModuleMember Build-ColumnTemplateMapping
+Export-ModuleMember ConvertTo-MaskingSetUsingSqlAuth
+Export-ModuleMember ConvertTo-MaskingSetUsingWindowsAuth
+Export-ModuleMember Import-ColumnTemplateMapping
 Export-ModuleMember Register-DataMaskerInstallation
 Export-ModuleMember Test-DataMaskerExists
