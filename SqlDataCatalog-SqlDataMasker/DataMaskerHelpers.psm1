@@ -81,6 +81,10 @@ function Import-ColumnTemplateMapping {
         --sensitivity-tag $SensitivityTag `
         --mapping-file $MappingFilePath `
         --log-directory $LogDirectory
+        
+    if ($LASTEXITCODE -ne 0) {
+        throw "Data Masker failed with exit code $LASTEXITCODE. See log files for details."
+    }
 }
 
 function ConvertTo-MaskingSetUsingWindowsAuth {
@@ -115,6 +119,10 @@ function ConvertTo-MaskingSetUsingWindowsAuth {
         --database $DatabaseName `
         --mapping-file $InputMappingFilePath `
         --parfile $ParFilePath
+    
+    if ($LASTEXITCODE -ne 0) {
+        throw "Data Masker failed with exit code $LASTEXITCODE. See log files for details."
+    }
     
     return $ParFilePath
 }
@@ -161,6 +169,10 @@ function ConvertTo-MaskingSetUsingSqlAuth {
         --database $DatabaseName `
         --mapping-file $InputMappingFilePath `
         --parfile $ParFilePath
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Data Masker failed with exit code $LASTEXITCODE. See log files for details."
+    }
     
     return $ParFilePath
 }

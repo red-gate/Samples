@@ -46,5 +46,7 @@ ConvertTo-MaskingSetUsingWindowsAuth `
     -DatabaseName $productionDatabaseName `
     -InputMappingFilePath $mappingFilePath
 
+# The masking set can now be run against a non-production database using Invoke-MaskDatabase.
+
 Write-Output "Masking set generated as $PSScriptRoot\$maskingSetPath"
 Get-ChildItem $PSScriptRoot\$maskingSetPath | Write-Output
