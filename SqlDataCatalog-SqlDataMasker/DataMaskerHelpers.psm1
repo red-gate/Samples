@@ -71,7 +71,7 @@ function Import-ColumnTemplateMapping {
         $LogDirectory
     )
 
-    DataMaskerCommandLineExecutable column-template build-mapping-file `
+    & (DataMaskerCommandLineExecutable) column-template build-mapping-file `
         --catalog-uri $CatalogUrl `
         --api-key $CatalogAuthToken `
         --instance $SqlServerHostName `
@@ -108,7 +108,7 @@ function ConvertTo-MaskingSetUsingWindowsAuth {
 
     $ParFilePath = $OutputMaskingSetFilePath + ".Parfile"
     
-    DataMaskerCommandLineExecutable build using-windows-auth `
+    & (DataMaskerCommandLineExecutable) build using-windows-auth `
         --masking-set-file $OutputMaskingSetFilePath `
         --log-directory $LogDirectory `
         --instance $SqlServerHostName `
@@ -152,7 +152,7 @@ function ConvertTo-MaskingSetUsingSqlAuth {
 
     $ParFilePath = $OutputMaskingSetFilePath + ".Parfile"
     
-    DataMaskerCommandLineExecutable build using-sql-auth `
+    & (DataMaskerCommandLineExecutable) build using-sql-auth `
         --username $DatabaseUserName `
         --password $DatabaseUserPassword `
         --masking-set-file $OutputMaskingSetFilePath `
