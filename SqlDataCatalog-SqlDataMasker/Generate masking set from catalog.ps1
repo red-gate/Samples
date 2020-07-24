@@ -46,5 +46,5 @@ ConvertTo-MaskingSetUsingWindowsAuth `
     -DatabaseName $productionDatabaseName `
     -InputMappingFilePath $mappingFilePath
 
-Write-Output "Masking set generated as $PSScriptRoot\$maskingSetPath\n"
+Write-Output "Masking set generated as $PSScriptRoot\$maskingSetPath"
 Get-ChildItem $PSScriptRoot\$maskingSetPath | Write-Output
