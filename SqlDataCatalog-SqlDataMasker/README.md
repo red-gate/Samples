@@ -15,10 +15,10 @@ This Powershell demonstrates how you'd tag a column of the `AdventureWorks` data
 
 At the top of the file, paste in your auth token from Data Catalog and the server url where your Data Catalog instance lives.
 
-This Powershell script will then process the columns of a given database (see the section `# local config`) and generate a masking set file, using the taxonomy in Data Catalog.
+This Powershell script will then use the Data Masker command line to generate a masking set file using the taxonomy in Data Catalog.
 
-In the config section, you will also find the `$maskingSetPath` variable, which is the output path to the file that the script will produce.
+The `$maskingSetPath` variable is the output path to the file that the script will produce.
 
-## DataMaskerHelpers.ps1
+## DataMaskerHelpers.psm1
 
 This file contains some utility functions that the other scripts use.
