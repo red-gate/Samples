@@ -18,7 +18,7 @@ $mappingFilePath = "./ColumnTemplateMapping.json"
 $maskingSetPath = "AdventureWorks.DMSMaskSet"
 
 $logsDirectoryPath = "$PWD/Logs"
-if (-Not Test-Path $logsDirectoryPath) {
+if (-Not (Test-Path $logsDirectoryPath)) {
     New-Item -ItemType Directory -Path $logsDirectoryPath
 }
 
