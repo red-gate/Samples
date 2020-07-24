@@ -18,3 +18,4 @@ $emailColumn = $allColumns |
     Where-Object { $_.ColumnName -like "EmailAddress" -and $_.SchemaName -like "Person" }
 $emailColumn | Add-ClassificationColumnTag -category "Masking Data Set" -tags @("EmailAddress")
 $emailColumn | Add-ClassificationColumnTag -category "Sensitivity" -tags @("Confidential - GDPR")
+$emailColumn | Add-ClassificationColumnTag -category "Treatment Intent" -tags @("Static Masking")
