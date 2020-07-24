@@ -1,5 +1,13 @@
-﻿$authToken = "[Your auth token]"
+﻿# Modify $authToken, $serverUrl, $productionInstanceName, $productionDatabaseName to match your config.
+
+$authToken = "[Your auth token]"
 $serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if you've configured SSL
+
+# The instance and database that have been classified in Data Catalog.
+$productionInstanceName = 'sql-server1.domain.com'
+$productionDatabaseName = 'AdventureWorks'
+
+$maskingSetPath = "AdventureWorks.DMSMaskSet"
 
 Invoke-WebRequest -Uri "$serverUrl/powershell" -OutFile 'data-catalog.psm1' `
     -Headers @{"Authorization" = "Bearer $authToken" }
@@ -10,12 +18,7 @@ Import-Module .\DataMaskerHelpers.psm1 -Force
 
 Test-DataMaskerExists
 
-# The instance and database that have been classified in Data Catalog.
-$productionInstanceName = 'sql-server1.domain.com'
-$productionDatabaseName = 'AdventureWorks'
-
 $mappingFilePath = "./ColumnTemplateMapping.json"
-$maskingSetPath = "AdventureWorks.DMSMaskSet"
 
 $logsDirectoryPath = "$PWD/Logs"
 if (-Not (Test-Path $logsDirectoryPath)) {
