@@ -208,18 +208,14 @@ function Get-MaskingTaxonomyTags {
         "City",
         "State",
         "ZIP Code",
+        "Full Address",
         "County",
         "Country",
         "Bank Account Number",
         "Debit/Credit Card Number",
         "Debit/Credit Card Expiry Date",
         "Social Security Number",
-        "URL",
-        "Bank Sort Code",
-        "SWIFT-BIC",
-        "Vehicle Registration Number",
-        "MAC Address",
-        "IP Address"
+        "URL"
     )
 }
 
