@@ -189,19 +189,33 @@ function Invoke-MaskDatabase {
 
 function Get-MaskingTaxonomyTags {
     return @(
-        "FirstName",
-        "Surname",
-        "FullName",
-        "DateOfBirth",
-        "EmailAddress",
-        "StreetAddress",
+        "Title",
+        "Given name",
+        "Family name",
+        "Full name",
+        "Date of birth",
+        "Gender",
+        "Nationality",
+        "Occupation",
+        "Organization name",
+        "Password",
+        "Passport number",
+        "Driving license number",
+        "Photo",
+        "Email address",
+        "Phone number",
+        "Street address",
         "City",
         "State",
-        "PostalCode",
+        "ZIP code",
+        "Full address",
         "County",
-        "CardNumber",
-        "BankSortCode",
-        "PhoneNumber"
+        "Country",
+        "Bank account number",
+        "Debit/credit card number",
+        "Debit/credit card expiry date",
+        "Social Security number",
+        "URL"
     )
 }
 
