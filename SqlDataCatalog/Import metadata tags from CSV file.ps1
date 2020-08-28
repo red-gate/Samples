@@ -29,5 +29,5 @@ for ($i = 0; $i -lt $data.Count; $i++) {
     $column = ($columns | Where-Object { $_.tableName -eq $data[$i].Table -and $_.columnName -eq $data[$i].Column})[0]
 
     $column | Add-ClassificationColumnTag -category 'Information Type' -tags @($data[$i].'Information Type')
-    $column | Add-ClassificationColumnTag -category 'Sensitivity' -tags @($data[$i].'Sensitivity Label')
+    $column | Add-ClassificationColumnTag -category 'Information Classification' -tags @($data[$i].'Sensitivity Label')
 }

@@ -1,4 +1,4 @@
 ﻿Schema,Table,Column,Information Type,Sensitivity Label
-Person,Person,FirstName,Name,Confidential - GDPR
-,Person,LastName,Name,Confidential - GDPR
-,PersonPhone,PhoneNumber,Contact Info,Confidential - GDPR
+Person,Person,FirstName,Given name,Confidential
+,Person,LastName,Family name,Confidential
+,PersonPhone,PhoneNumber,Phone number,Confidential
