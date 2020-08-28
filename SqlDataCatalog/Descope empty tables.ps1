@@ -22,7 +22,7 @@ $emptyTableColumns = $allColumns | Where-Object { $_.tableRowCount -eq 0 }
 $emptyTableColumnsInDboSchema = $emptyTableColumns | Where-Object { $_.schemaName -eq 'dbo' }
 
 # Add-ClassificationColumnTag does a non-destructive update on all these columns (i.e. other tags are not removed)
-$emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Sensitivity" -tags "General"
+$emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category "Information Classification" -tags "System" # Information that is required to operate the system but is not accessible/meaningful outside of it
 $emptyTableColumnsInDboSchema | Add-ClassificationColumnTag -category $scopeCategory -tags $unusedTag
 
 $tablesNoLongerEmpty = $allColumns | Where-Object {($_.tags.Name -eq $unusedTag) -and ($_.tableRowCount -ne 0)}

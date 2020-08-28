@@ -21,7 +21,7 @@ $allColumns = Get-ClassificationColumn -instanceName $instanceName -databaseName
 # you may need to adjust to suit your definition
 
 $untaggedColumns = $allColumns |
-    Where-Object { $_.tags.count -eq 0 -and !$_.sensitivityLabel -and !$_.informationType }
+    Where-Object { $_.tags.count -eq 0 }
 
 if ($untaggedColumns.Count -gt 0) {
     $text = $untaggedColumns |
