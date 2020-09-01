@@ -53,7 +53,7 @@ foreach ($tagname in Get-MaskingTaxonomyTags) {
     }
 
     $tag = @{
-        name        = $tagname
+        name        = [System.Web.HttpUtility]::UrlEncode($tagname)
         description = $tagname
     }
 
