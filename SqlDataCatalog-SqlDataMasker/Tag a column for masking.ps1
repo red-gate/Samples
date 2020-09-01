@@ -15,7 +15,7 @@ $databaseName = 'AdventureWorks'
 
 $allColumns = Get-ClassificationColumn -instanceName $instanceName -databaseName $databaseName
 $emailColumn = $allColumns |
-    Where-Object { $_.ColumnName -like "Email address" -and $_.SchemaName -like "Person" }
+    Where-Object { $_.ColumnName -like "EmailAddress" -and $_.SchemaName -like "Person" }
 $emailColumn | Add-ClassificationColumnTag -category "Information Type" -tags @("Email address")
 $emailColumn | Add-ClassificationColumnTag -category "Information Classification" -tags @("Confidential")
 $emailColumn | Add-ClassificationColumnTag -category "Treatment Intent" -tags @("Static Masking")
