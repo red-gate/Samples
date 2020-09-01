@@ -1,7 +1,7 @@
 ############################################################################
 # Pull the column template mappings using the new command
 # Build the masking set from the resulting column template mappings
-# 
+#
 ############################################################################
 
 $global:DataMaskerCommandLineName = 'DataMaskerCmdLine.exe'
@@ -81,7 +81,7 @@ function Import-ColumnTemplateMapping {
         --sensitivity-tag $SensitivityTag `
         --mapping-file $MappingFilePath `
         --log-directory $LogDirectory
-        
+
     if ($LASTEXITCODE -ne 0) {
         throw "Data Masker failed with exit code $LASTEXITCODE. See log files for details."
     }
@@ -111,7 +111,7 @@ function ConvertTo-MaskingSetUsingWindowsAuth {
     )
 
     $ParFilePath = $OutputMaskingSetFilePath + ".Parfile"
-    
+
     & (DataMaskerCommandLineExecutable) build using-windows-auth `
         --masking-set-file $OutputMaskingSetFilePath `
         --log-directory $LogDirectory `
@@ -119,11 +119,11 @@ function ConvertTo-MaskingSetUsingWindowsAuth {
         --database $DatabaseName `
         --mapping-file $InputMappingFilePath `
         --parfile $ParFilePath
-    
+
     if ($LASTEXITCODE -ne 0) {
         throw "Data Masker failed with exit code $LASTEXITCODE. See log files for details."
     }
-    
+
     return $ParFilePath
 }
 
@@ -159,7 +159,7 @@ function ConvertTo-MaskingSetUsingSqlAuth {
     )
 
     $ParFilePath = $OutputMaskingSetFilePath + ".Parfile"
-    
+
     & (DataMaskerCommandLineExecutable) build using-sql-auth `
         --username $DatabaseUserName `
         --password $DatabaseUserPassword `
@@ -173,7 +173,7 @@ function ConvertTo-MaskingSetUsingSqlAuth {
     if ($LASTEXITCODE -ne 0) {
         throw "Data Masker failed with exit code $LASTEXITCODE. See log files for details."
     }
-    
+
     return $ParFilePath
 }
 
@@ -184,39 +184,7 @@ function Invoke-MaskDatabase {
         $ParameterFile
     )
 
-    DataMaskerCommandLineExecutable run --parfile $ParameterFile 
-}
-
-function Get-MaskingTaxonomyTags {
-    return @(
-        "Title",
-        "Given name",
-        "Family name",
-        "Full name",
-        "Date of birth",
-        "Gender",
-        "Nationality",
-        "Occupation",
-        "Organization name",
-        "Password",
-        "Passport number",
-        "Driving license number",
-        "Photo",
-        "Email address",
-        "Phone number",
-        "Street address",
-        "City",
-        "State",
-        "ZIP code",
-        "Full address",
-        "County",
-        "Country",
-        "Bank account number",
-        "Debit/credit card number",
-        "Debit/credit card expiry date",
-        "Social Security number",
-        "URL"
-    )
+    DataMaskerCommandLineExecutable run --parfile $ParameterFile
 }
 
 Export-ModuleMember Invoke-MaskDatabase
@@ -225,4 +193,3 @@ Export-ModuleMember ConvertTo-MaskingSetUsingWindowsAuth
 Export-ModuleMember Import-ColumnTemplateMapping
 Export-ModuleMember Register-DataMaskerInstallation
 Export-ModuleMember Test-DataMaskerExists
-Export-ModuleMember Get-MaskingTaxonomyTags

@@ -31,7 +31,7 @@ Import-ColumnTemplateMapping `
     -CatalogAuthToken $authToken `
     -SqlServerHostName $productionInstanceName `
     -DatabaseName $productionDatabaseName `
-    -InformationTypeCategory "Masking Data Set" `
+    -InformationTypeCategory "Information Type" `
     -SensitivityCategory "Treatment Intent" `
     -SensitivityTag "Static Masking" `
     -MappingFilePath $mappingFilePath `
