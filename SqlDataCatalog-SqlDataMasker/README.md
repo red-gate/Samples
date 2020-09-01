@@ -2,10 +2,7 @@
 
 This directory contains a number of scripts to help you integrate [Sql Data Catalog](https://www.red-gate.com/products/dba/sql-data-catalog/) with [Data Masker](https://www.red-gate.com/products/dba/data-masker/).
 
-## Add masking taxonomy.ps1
-
-The masking scripts expect a Tag Category named `Masking Data Set` with a number of tags such as `EmailAddress`.
-This Powershell script adds this category and the tags to the taxonomy.
+**Note:** These samples presumes that you have a recent installation of Data Masker and SQL Data Catalog with the default taxonomy.
 
 ## Tag a column for masking.ps1
 
