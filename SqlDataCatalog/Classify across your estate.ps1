@@ -24,7 +24,7 @@ $idCategories = @{
 Set-Classification -columns $idColumns -categories $idCategories
 
 # create group of columns for email
-$emailColumns = Get-ClassificationColumn -ColumnNameFilterString "email"
+$emailColumns = Get-ClassificationColumn -ColumnNameFilterString "%email%"
 
 # exclude any columns that might contain "id" (e.g. "email_id")
 $emailColumns = $emailColumns | Where-Object { $_.ColumnName -notlike "*id*" }
