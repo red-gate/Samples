@@ -36,3 +36,6 @@ foreach ($clone in $oldClones)
 
 # Remove the old image
 Remove-SqlCloneImage -Image $oldImage;
+# Alternatively you can use IgnoreClonesWithDeletionPending flag to delete the image if some of its clones are offline at the moment. 
+# (The clones will be cleaned up when their machines are online again.)
+# Remove-SqlCloneImage -Image $oldImage -IgnoreClonesWithDeletionPending;
