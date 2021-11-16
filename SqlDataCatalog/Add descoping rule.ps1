@@ -1,7 +1,7 @@
 # Based on the structure of AdventureWorks (see `Classify Adventureworks database`)
 # Presumes that you have the foundational information types and information classification tags
 
-$authToken = "[your token here]"
+$authToken = "[Your auth token]"
 $serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if you've configured SSL
 
 $headers = @{
