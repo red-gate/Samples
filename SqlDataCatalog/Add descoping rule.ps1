@@ -1,8 +1,8 @@
 # Based on the structure of AdventureWorks (see `Classify Adventureworks database`)
 # Presumes that you have the foundational information types and information classification tags
 
-$authToken = "[Your auth token]"
-$serverUrl = "http://[Your SQL Data Catalog Server FQDN]:15156" # or https:// if you've configured SSL
+$authToken = "OTA5ODI1Nzc3NDY4NDQwNTc2OjBiYTA3OWQwLTg4ZjktNDg4Yi1hMjU0LTUwMWE2MWJhODIwZQ=="
+$serverUrl = "http://localhost:15156" # or https:// if you've configured SSL
 
 $headers = @{
     'Authorization' = "Bearer $authToken"
@@ -36,6 +36,9 @@ $body = @{
         @{
             taggedColumnsFilter = "Exclude"
             columnDataTypeFullNames = @("bit", "uniqueidentifier")
+        },
+        @{
+            columnNameSubstring = @("%modifieddate", "%modifydate", "timestamp", "%date%modified")                            
         }
     )
 }
