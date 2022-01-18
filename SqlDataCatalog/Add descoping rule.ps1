@@ -46,6 +46,6 @@ $body = @{
     )
 }
 
-$bodyJson = @($body) | ConvertTo-Json -Depth 3
+$bodyJson = @($body) | ConvertTo-Json -Depth 4
 
 Invoke-RestMethod -Uri "$serverUrl/api/v1.0/suggestion-rules" -Method Post -Body $bodyJson -ContentType 'application/json; charset=utf-8' -UseBasicParsing -Headers $headers
