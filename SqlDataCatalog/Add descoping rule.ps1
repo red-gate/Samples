@@ -16,29 +16,32 @@ $body = @{
         @{
             primaryKeyFilter = "Require"
             taggedColumnsFilter = "Exclude"
-            columnDataTypeFullNames = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier")
+            columnDataTypes = @{ include = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier") }
         },
         @{
             foreignKeyFilter = "Require"
             taggedColumnsFilter = "Exclude"
-            columnDataTypeFullNames = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier")
+            columnDataTypes = @{ include = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier") }
         },
         @{
             compositeKeyFilter = "Require"
             taggedColumnsFilter = "Exclude"
-            columnDataTypeFullNames = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier")
+            columnDataTypes = @{ include = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier") }
         },
         @{
             identityConstraintFilter = "Require"
             taggedColumnsFilter = "Exclude"
-            columnDataTypeFullNames = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier")
+            columnDataTypes = @{ include = @("int", "bigint", "tinyint", "smallint", "uniqueidentifier") }
         },
         @{
             taggedColumnsFilter = "Exclude"
-            columnDataTypeFullNames = @("bit", "uniqueidentifier")
+            columnDataTypes =  @{ include = @("bit", "uniqueidentifier") }
         },
         @{
-            columnNameSubstring = @("%modifieddate", "%modifydate", "timestamp", "%date%modified")
+            columns = @{
+                include = @("timestamp")
+                includePartial = @("%modifieddate", "%modifydate", "%date%modified")
+            }
         }
     )
 }
