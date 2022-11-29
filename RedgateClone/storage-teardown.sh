@@ -118,8 +118,8 @@ function parsecommandline() {
     printusage() {
       echo "
 Usage:
-    -f / --full-disk-cleanup        Sanitize the entire disk(s) instead of only the default's ceph's metadata.
-    --yes-i-really-really-mean-it   Manual confirmation required to actually carry out the destructive operation.
+    -f / --full-disk-cleanup        Sanitize the entire disk(s) instead of only the default's ceph's metadata. This is much slower.
+    --yes-i-really-really-mean-it   Confirmation parameter required to actually carry out the destructive operation.
 "
     }
 
@@ -203,6 +203,34 @@ function resourceexists() {
 
   local resource=$(kubectl get -n $namespace $type $name --ignore-not-found)
   [[ ! -z $resource ]] && echo true || echo false
+}
+
+# Force a y/Y user confirmation before continuing the script's execution
+function asktocontinue() {
+    local actionmessage=${1:-}  # Anything we want to ask the user to do prior to continuing
+    local successmessage=${2:-} # What to show if user decides to continue
+    local abortmessage=${3:-}   # What to show if user decides to abort
+
+    if [[ ! -z  "$actionmessage" ]]; then
+      actionmessage="$actionmessage "
+    fi
+    if [[ -z  "$successmessage" ]]; then
+      successmessage="OK."
+    fi
+    if [[ -z  "$abortmessage" ]]; then
+      abortmessage=" "
+    else
+      abortmessage="$abortmessage "
+    fi
+
+    # We ask for a one key confirmation (-n 1): anything other than 'y/n' will cause a repetition of the question.
+    # NOTE: We accept backslashes literally (-r) or our 'read' call would see the backslash as the beginning of an escape
+    #       sequence and wait for a second character to come through.
+    while  read -p "      ${actionmessage}Continue [y/n]? " -n 1 -r; do
+      echo
+      [[ $REPLY =~ ^[Yy]$ ]] && successoverwrite $successmessage && return $EXIT_SUCCESS
+      [[ $REPLY =~ ^[Nn]$ ]] && erroroverwrite "${abortmessage}Aborting script..." && return $EXIT_FAIL
+    done
 }
 
 ####################################################### Deleters ############################################################
@@ -427,6 +455,9 @@ echo
 # Ctrl+C or failed early)
 echo "Pre-setup checks:"
 deletecephcleanupjob
+if $FULL_DISK_CLEANUP; then
+  asktocontinue "Full disk cleanup is a slow process (can be a few hours depending on the size of your storage) and should only be used if the default quick one failed." "Full disk cleanup mode accepted." "Full disk cleanup mode not accepted."
+fi
 success "Ready to go."
 echo
 
