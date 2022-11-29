@@ -316,6 +316,15 @@ function deletealldatabaseserverinstances() {
   fi
 }
 
+# Destroys the cleanup job used by Rook to clean up the Ceph cluster
+function deletecephcleanupjob() {
+  # NOTE: A suffix based on the host machine's name will be automatically added by Ceph to the job's name
+  fulljobname=$(findresourcenamebyprefix $CEPH_NAMESPACE "job" "cluster-cleanup-job")
+  if [[ ! -z $fulljobname ]]; then
+    deleteresource $CEPH_NAMESPACE "job" $fulljobname
+  fi
+}
+
 ######################################################## Waiters ############################################################
 
 # Loops and polls the given k8s resource until it is found or a timeout is hit
@@ -377,7 +386,7 @@ function waitforcephjobcompletion() {
     # NOTE2: 'kubectl wait' has no awareness of new resources that get created AFTER it gets triggered, so it's advisable for the
     #        caller to ensure the resources being waited for are already created at this point (as we do above) or this 
     #        could block indefinitely (or until it hits the timeout)
-    outputtext "$namespace: $type/$labelselector cleaning up storage data (this may take a while)..."
+    outputtext "$namespace: $type/$labelselector cleaning up storage data (this may take a while, timeout=${jobtimeout}s)..."
     kubectl wait -n $namespace "job" --selector=$labelselector --for=condition=complete --timeout="${jobtimeout}s" 2>&1 > /dev/null
     successoverwrite "$namespace: $type/$labelselector job completed."
   fi
@@ -412,6 +421,13 @@ if ! [ -x "$(command -v jq)" ]; then
   exit $EXIT_FAIL
 fi
 successoverwrite "jq successfully found in system."
+echo
+
+# We need to make sure we don't have anything from past cleanup still hanging around (e.g. if script was interrupted with 
+# Ctrl+C or failed early)
+echo "Pre-setup checks:"
+deletecephcleanupjob
+success "Ready to go."
 echo
 
 # Clean-up all resources related to data images and containers inside cluster
@@ -477,11 +493,7 @@ deletepersistentvolumesorclaimsbystorageclassname $CEPH_NAMESPACE "pv" "local-st
 deleteresource "kube-system" "daemonset" "local-volume-provisioner"
 
 # Finally, cleanup Ceph job
-# NOTE: A suffix based on the host machine's name will be automatically added by Ceph to the job's name
-fulljobname=$(findresourcenamebyprefix $CEPH_NAMESPACE "job" "cluster-cleanup-job")
-if [[ ! -z $fulljobname ]]; then
-  deleteresource $CEPH_NAMESPACE "job" $fulljobname
-fi
+deletecephcleanupjob
 
 # Echo to redeploy (i.e. to get a fresh storage in place)
 echo
