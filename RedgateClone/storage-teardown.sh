@@ -18,7 +18,7 @@
 CEPH_NAMESPACE="redgate-clone-app"
 CONTAINER_NAMESPACE="redgate-clone-data"
 DEFAULT_TIMEOUT_SECONDS=120
-CEPH_FULL_DISK_REMOVA_TIMEOUT_SECONDS=86400 # 1 day
+CEPH_FULL_DISK_REMOVAL_TIMEOUT_SECONDS=86400 # 1 day
 FRESH_DELETE=false
 SIMPLE_TERMINAL=false
 
@@ -406,7 +406,7 @@ function waitforcephjobcompletion() {
     successoverwrite "$namespace: $type/$labelselector storage data job initialised."
 
     # Determine timeout to use based on type of Ceph cluster disk cleanup
-    $FULL_DISK_CLEANUP && local jobtimeout=$CEPH_FULL_DISK_REMOVA_TIMEOUT_SECONDS || local jobtimeout=$DEFAULT_TIMEOUT_SECONDS
+    $FULL_DISK_CLEANUP && local jobtimeout=$CEPH_FULL_DISK_REMOVAL_TIMEOUT_SECONDS || local jobtimeout=$DEFAULT_TIMEOUT_SECONDS
 
     # NOTE: Kubernetes instances are loosely coupled by the means of labels (key-value pairs), hence we need to search for 
     #       labels using a selector instead of partial names as 'kubectl wait' expects exact name matches (and our ceph
