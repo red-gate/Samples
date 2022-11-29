@@ -448,6 +448,11 @@ if $(resourceexists $CEPH_NAMESPACE "cephcluster" "ceph-cluster"); then
 fi
 
 # Delete Ceph's cluster
+# NOTE: The above cleanup policy will cause the removal of the rook-ceph manager and monitor (but not the operator
+#       nor the ceph tools) and most importantly will trigger a cleanup job 'cluster-cleanup-job-*' to: 
+#         - Remove all the rook-ceph data in the dataDirHostPath (/var/lib/rook).
+#         - Wipe the data on the drives on all the nodes where OSDs were running in this cluster (including removing the 
+#           ceph_bluestore file system). This will either be with the quick or complete methods (see above).
 deleteresource $CEPH_NAMESPACE "cephcluster" "ceph-cluster"
 waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-mgr"
 waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-mon"
@@ -458,7 +463,7 @@ waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "csi-rbdplugin-provisio
 # A data storage removal job should kick-off and start cleaning the data in the cluster
 waitforcephjobcompletion $CEPH_NAMESPACE "job" "rook-ceph-cleanup=true"
 
-# Now delete the remaining Ceph utilities
+# Now delete the remaining Ceph utilities that are not affected by the cleanup policy
 deleteresource $CEPH_NAMESPACE "deployment" "rook-ceph-operator"
 deleteresource $CEPH_NAMESPACE "deployment" "rook-ceph-tools"
 waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-operator"
