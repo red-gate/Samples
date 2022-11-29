@@ -191,7 +191,7 @@ function findresourcenamebyprefix() {
   local type=$2
   local nameprefix=$3
 
-  local resourcename=$(kubectl -n $namespace get $type -o json | jq -j '.items[].metadata.name | select(. | startswith("'$nameprefix'"))')
+  local resourcename=$(kubectl get -n $namespace $type -o json | jq -j '.items[].metadata.name | select(. | startswith("'$nameprefix'"))')
   echo $resourcename
 }
 
@@ -201,7 +201,7 @@ function resourceexists() {
   local type=$2
   local name=$3 # Needs to be an exact match
 
-  local resource=$(kubectl -n $namespace get $type $name --ignore-not-found)
+  local resource=$(kubectl get -n $namespace $type $name --ignore-not-found)
   [[ ! -z $resource ]] && echo true || echo false
 }
 
@@ -215,7 +215,7 @@ function removefinalizersifpresent() {
 
   if $(resourceexists $namespace $type $name); then
     outputtext "$namespace: $type/$name removing finalizers...";
-    kubectl -n "$namespace" patch $type $name --type merge -p '{"metadata":{"finalizers":null}}' 2>&1 > /dev/null
+    kubectl patch -n "$namespace" $type $name --type merge -p '{"metadata":{"finalizers":null}}' 2>&1 > /dev/null
     successoverwrite "$namespace: $type/$name finalizers removed."
   fi
 }
@@ -235,7 +235,7 @@ function deleteresource {
     if [[ $type == "pv" || $type == "storageclass" ]]; then
       kubectl delete $type $name 2>&1 > /dev/null
     else
-      kubectl -n "$namespace" delete $type $name 2>&1 > /dev/null
+      kubectl delete -n "$namespace" $type $name 2>&1 > /dev/null
     fi
     successoverwrite "$namespace: $type/$name deleted."
     
@@ -257,7 +257,7 @@ function deleteresource {
     if [[ $type == "pv" || $type == "storageclass" ]]; then
       kubectl delete $type $name --force 2>&1 > /dev/null
     else
-      kubectl -n "$namespace" delete $type $name --force 2>&1 > /dev/null
+      kubectl delete -n "$namespace" $type $name --force 2>&1 > /dev/null
     fi
     successoverwrite "$namespace: $type/$name force deleted."
 
@@ -284,7 +284,7 @@ function deletepersistentvolumesorclaimsbystorageclassname() {
   local storageclassname=$3
   local removefinalizers=${4:-false}
 
-  local list=$(kubectl -n $namespace get $type -o json --ignore-not-found | jq '.items[] | select(.spec.storageClassName=="'$storageclassname'") | .metadata.name')
+  local list=$(kubectl get -n $namespace $type -o json --ignore-not-found | jq '.items[] | select(.spec.storageClassName=="'$storageclassname'") | .metadata.name')
   while IFS= read -r resourcenametodelete; do
     resourcenametodelete=$(echo "$resourcenametodelete" | tr -d '"')
     if [[ ! -z $resourcenametodelete ]]; then
@@ -356,7 +356,7 @@ function waitforcephjobcompletion() {
     # NOTE: This typically takes a few seconds
     outputtext "$namespace: $type/$labelselector waiting for storage data deletion job to initialize..."
     local counterinseconds=0
-    while [[ -z $(kubectl -n $namespace get $type --selector="$labelselector" --no-headers -o custom-columns=":metadata.name" || :) ]]; do
+    while [[ -z $(kubectl get -n $namespace $type --selector="$labelselector" --no-headers -o custom-columns=":metadata.name" || :) ]]; do
       ((++counterinseconds))
       if [[ ${counterinseconds:-0} -ge $DEFAULT_TIMEOUT_SECONDS ]]; then
         erroroverwrite "$namespace: $type/$labelselector reached ${DEFAULT_TIMEOUT_SECONDS}s timeout while waiting for storage data deletion job to init. This is unexpected. Terminating script..."
@@ -389,7 +389,7 @@ function waittoterminatebypartialnamelookup() {
   local type=$2
   local namelookup=$3 # This can be a partial match
 
-  local resourcesFound=$(kubectl -n $namespace get $type --no-headers -o custom-columns=":metadata.name" | grep $namelookup || :)
+  local resourcesFound=$(kubectl get -n $namespace $type --no-headers -o custom-columns=":metadata.name" | grep $namelookup || :)
 
   if [[ ! -z "$resourcesFound" ]]; then
     while IFS= read -r resourcenametodelete; do
@@ -443,7 +443,7 @@ $FULL_DISK_CLEANUP && cleanuppolicytouse="$fullcleanuppolicy" || cleanuppolicyto
 #       to a successful redeployment of Redgate Clone.
 if $(resourceexists $CEPH_NAMESPACE "cephcluster" "ceph-cluster"); then
   outputtext "$CEPH_NAMESPACE: cephcluster/ceph-cluster updating cleanup policy..."
-  kubectl -n $CEPH_NAMESPACE patch cephcluster ceph-cluster --type merge -p "$cleanuppolicytouse" 2>&1 > /dev/null
+  kubectl patch -n $CEPH_NAMESPACE cephcluster ceph-cluster --type merge -p "$cleanuppolicytouse" 2>&1 > /dev/null
   successoverwrite "$CEPH_NAMESPACE: cephcluster/ceph-cluster cleanup policy updated."
 fi
 
