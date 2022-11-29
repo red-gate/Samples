@@ -17,7 +17,8 @@
 
 CEPH_NAMESPACE="redgate-clone-app"
 CONTAINER_NAMESPACE="redgate-clone-data"
-TIMEOUT=120
+DEFAULT_TIMEOUT_SECONDS=120
+CEPH_FULL_DISK_REMOVA_TIMEOUT_SECONDS=86400 # 1 day
 FRESH_DELETE=false
 SIMPLE_TERMINAL=false
 
@@ -328,17 +329,17 @@ function __waittoterminate() {
   until [[ $(resourceexists "$namespace" "$type" "$name") == false ]]; do
     [[ $counterinseconds == 0 ]] && echo
     ((++counterinseconds))
-    if [[ ${counterinseconds:-0} -ge $TIMEOUT ]]; then 
-      $terminate && erroroverwrite "$namespace: $type/$name reached ${TIMEOUT}s timeout while waiting for termination. This is unexpected. Terminating script..." && exit $EXIT_FAIL
-      erroroverwrite "$namespace: $type/$name reached ${TIMEOUT}s timeout while waiting for termination. Ignoring."
+    if [[ ${counterinseconds:-0} -ge $DEFAULT_TIMEOUT_SECONDS ]]; then 
+      $terminate && erroroverwrite "$namespace: $type/$name reached ${DEFAULT_TIMEOUT_SECONDS}s timeout while waiting for termination. This is unexpected. Terminating script..." && exit $EXIT_FAIL
+      erroroverwrite "$namespace: $type/$name reached ${DEFAULT_TIMEOUT_SECONDS}s timeout while waiting for termination. Ignoring."
       break
     else
       sleep 1
-      outputtextoverwrite "$namespace: $type/$name waiting to terminate... $counterinseconds/${TIMEOUT}s"
+      outputtextoverwrite "$namespace: $type/$name waiting to terminate... $counterinseconds/${DEFAULT_TIMEOUT_SECONDS}s"
     fi
   done
 
-  if [[ $counterinseconds != 0 && $counterinseconds -lt $TIMEOUT ]]; then 
+  if [[ $counterinseconds != 0 && $counterinseconds -lt $DEFAULT_TIMEOUT_SECONDS ]]; then 
     successoverwrite "$namespace: $type/$name terminated."
   fi
 }
@@ -357,15 +358,18 @@ function waitforcephjobcompletion() {
     local counterinseconds=0
     while [[ -z $(kubectl -n $namespace get $type --selector="$labelselector" --no-headers -o custom-columns=":metadata.name" || :) ]]; do
       ((++counterinseconds))
-      if [[ ${counterinseconds:-0} -ge $TIMEOUT ]]; then
-        erroroverwrite "$namespace: $type/$labelselector reached ${TIMEOUT}s timeout while waiting for storage data deletion job to init. This is unexpected. Terminating script..."
+      if [[ ${counterinseconds:-0} -ge $DEFAULT_TIMEOUT_SECONDS ]]; then
+        erroroverwrite "$namespace: $type/$labelselector reached ${DEFAULT_TIMEOUT_SECONDS}s timeout while waiting for storage data deletion job to init. This is unexpected. Terminating script..."
         exit $EXIT_FAIL
       else
         sleep 1
-        outputtextoverwrite "$namespace: $type/$labelselector waiting for data deletion job to initialize... $counterinseconds/${TIMEOUT}s"
+        outputtextoverwrite "$namespace: $type/$labelselector waiting for data deletion job to initialize... $counterinseconds/${DEFAULT_TIMEOUT_SECONDS}s"
       fi
     done
     successoverwrite "$namespace: $type/$labelselector storage data job initialised."
+
+    # Determine timeout to use based on type of Ceph cluster disk cleanup
+    $FULL_DISK_CLEANUP && local jobtimeout=$CEPH_FULL_DISK_REMOVA_TIMEOUT_SECONDS || local jobtimeout=$DEFAULT_TIMEOUT_SECONDS
 
     # NOTE: Kubernetes instances are loosely coupled by the means of labels (key-value pairs), hence we need to search for 
     #       labels using a selector instead of partial names as 'kubectl wait' expects exact name matches (and our ceph
@@ -374,7 +378,7 @@ function waitforcephjobcompletion() {
     #        caller to ensure the resources being waited for are already created at this point (as we do above) or this 
     #        could block indefinitely (or until it hits the timeout)
     outputtext "$namespace: $type/$labelselector cleaning up storage data (this may take a while)..."
-    kubectl wait -n $namespace "job" --selector=$labelselector --for=condition=complete --timeout="${TIMEOUT}s" 2>&1 > /dev/null
+    kubectl wait -n $namespace "job" --selector=$labelselector --for=condition=complete --timeout="${jobtimeout}s" 2>&1 > /dev/null
     successoverwrite "$namespace: $type/$labelselector job completed."
   fi
 }
