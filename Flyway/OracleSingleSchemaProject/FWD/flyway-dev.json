@@ -1,0 +1,41 @@
+{
+  "version": "2.0",
+  "id": "759ff7ec-2902-44aa-9069-6bc7fc5a45cb",
+  "name": "FWD",
+  "databaseType": "Oracle",
+  "schemas": [
+    "FWD"
+  ],
+  "development": {
+    "scriptsFolder": "./schema-model"
+  },
+  "deployment": {
+    "flywayConfFiles": [
+      "./flyway.conf"
+    ],
+    "targetDatabases": [
+      {
+        "schemas": [
+          "FWD"
+        ],
+        "displayName": "BaselineDB",
+        "connectionProvider": {
+          "type": "UsernamePassword",
+          "url": "jdbc:oracle:thin:@//localhost:1521/Dev1",
+          "username": "FWD",
+          "password": {
+            "secretType": "DefaultSecretStore",
+            "name": "Flyway Desktop 8c14cb0a-6796-4a5a-8f4f-4ba2ceff104c"
+          }
+        }
+      }
+    ]
+  },
+  "capabilities": {
+    "comparison": {
+        "options": {
+            "ExcludeTargetSchemaName": true
+        }
+    }
+  }
+}
