@@ -15,7 +15,7 @@
 
 ######################################################### Globals ###########################################################
 
-CEPH_NAMESPACE="redgate-cloen-app"
+CEPH_NAMESPACE="redgate-clone-app"
 CONTAINER_NAMESPACE="redgate-clone-data"
 DEFAULT_TIMEOUT_SECONDS=120
 CEPH_FULL_DISK_REMOVAL_TIMEOUT_SECONDS=86400 # 1 day
@@ -440,6 +440,8 @@ function waittoterminatebypartialnamelookup() {
 
 ########################################################### Main ############################################################
 
+parsecommandline "$@"
+
 echo "Verifying needed dependencies:"
 outputtext "Checking if jq is installed..."
 if ! [ -x "$(command -v jq)" ]; then
@@ -449,6 +451,99 @@ fi
 successoverwrite "jq successfully found in system."
 echo
 
+# We need to make sure we don't have anything from past cleanup still hanging around (e.g. if script was interrupted with 
+# Ctrl+C or failed early)
+echo "Pre-setup checks:"
+deletecephcleanupjob
+if $FULL_DISK_CLEANUP; then
+  asktocontinue "Full disk cleanup is a slow process (can be a few hours depending on the size of your storage) and should only be used if the default quick one failed." "Full disk cleanup mode accepted." "Full disk cleanup mode not accepted."
+fi
+success "Ready to go."
+echo
+
 # Clean-up all resources related to data images and containers inside cluster
 echo "Starting cleanup of the data storage used by existing data images and data containers:"
 deletealldatabaseserverinstances true
+deletepersistentvolumesorclaimsbystorageclassname $CONTAINER_NAMESPACE "pvc" "rook-ceph-block" true
+deletepersistentvolumesorclaimsbystorageclassname $CONTAINER_NAMESPACE "pv" "rook-ceph-block" true
+success "Data storage used by data images and data container cleaned-up (metadata NOT removed from configuration database)."
+echo
+
+# Now for the rest of the storage. Start removing Ceph CRDs
+echo "Starting cleanup of the in-cluster data storage provider:"
+removefinalizersifpresent $CEPH_NAMESPACE "cephblockpool" "ceph-block-pool"
+deleteresource $CEPH_NAMESPACE "cephblockpool" "ceph-block-pool"
+removefinalizersifpresent $CEPH_NAMESPACE "cephblockpool" "builtin-mgr"
+deleteresource $CEPH_NAMESPACE "cephblockpool" "builtin-mgr"
+deleteresource $CEPH_NAMESPACE "storageclass" "rook-ceph-block"
+deleteresource $CEPH_NAMESPACE "storageclass" "local-storage"
+
+# Set Ceph cleanup based on user's input (default: quick)
+quickcleanuppolicy='{"spec":{"cleanupPolicy":{"confirmation": "yes-really-destroy-data", "sanitizeDisks":{"method": "quick", "dataSource": "zero", "iteration": 1}}}}'
+fullcleanuppolicy='{"spec":{"cleanupPolicy":{"confirmation": "yes-really-destroy-data", "sanitizeDisks":{"method": "complete", "dataSource": "random", "iteration": 1}}}}'
+$FULL_DISK_CLEANUP && cleanuppolicytouse="$fullcleanuppolicy" || cleanuppolicytouse="$quickcleanuppolicy"
+
+# Patch Ceph's cluster to have an explicit cleanup policy
+# NOTE: By default, only the ceph's metadata will be cleared (quick method) and zero bytes will be used for the operation.
+#       If full disk cleanup is provided, the whole disk(s) will be sanitized (complete method) and random bytes will be
+#       used for the operation. This is much slower and should only really be needed if the quick method did not lead
+#       to a successful redeployment of Redgate Clone.
+if $(resourceexists $CEPH_NAMESPACE "cephcluster" "ceph-cluster"); then
+  outputtext "$CEPH_NAMESPACE: cephcluster/ceph-cluster updating cleanup policy..."
+  kubectl patch -n $CEPH_NAMESPACE cephcluster ceph-cluster --type merge -p "$cleanuppolicytouse" 2>&1 > /dev/null
+  successoverwrite "$CEPH_NAMESPACE: cephcluster/ceph-cluster cleanup policy updated."
+fi
+
+# Delete Ceph's cluster
+# NOTE: The above cleanup policy will cause the removal of the rook-ceph manager and monitor (but not the operator
+#       nor the ceph tools) and most importantly will trigger a cleanup job 'cluster-cleanup-job-*' to: 
+#         - Remove all the rook-ceph data in the dataDirHostPath (/var/lib/rook).
+#         - Wipe the data on the drives on all the nodes where OSDs were running in this cluster (including removing the 
+#           ceph_bluestore file system). This will either be with the quick or complete methods (see above).
+deleteresource $CEPH_NAMESPACE "cephcluster" "ceph-cluster"
+waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-mgr"
+waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-mon"
+waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-osd"
+waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "csi-rbdplugin"
+waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "csi-rbdplugin-provisioner"
+
+# A data storage removal job should kick-off and start cleaning the data in the cluster
+waitforcephjobcompletion $CEPH_NAMESPACE "job" "rook-ceph-cleanup=true"
+
+# Now delete the remaining Ceph utilities that are not affected by the cleanup policy
+deleteresource $CEPH_NAMESPACE "deployment" "rook-ceph-operator"
+deleteresource $CEPH_NAMESPACE "deployment" "rook-ceph-tools"
+waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-operator"
+waittoterminatebypartialnamelookup $CEPH_NAMESPACE "pod" "rook-ceph-tools" # This one can take a few seconds
+
+# And don't forget the local storage as well
+deletepersistentvolumesorclaimsbystorageclassname $CEPH_NAMESPACE "pvc" "local-storage"
+deletepersistentvolumesorclaimsbystorageclassname $CEPH_NAMESPACE "pv" "local-storage"
+
+# Delete local provisioner daemonset
+deleteresource "kube-system" "daemonset" "local-volume-provisioner"
+
+# Finally, cleanup Ceph job
+deletecephcleanupjob
+
+# Echo to redeploy (i.e. to get a fresh storage in place)
+echo
+success "The cluster data storage has been cleaned-up."
+echo
+echo "   Follow up tasks:"
+echo "      1. Go to KOTS Admin Console dashboard and:"
+echo "          - (if doing an upgrade) Press 'Check for update' and 'Deploy' the new version with a fresh empty storage."
+echo "          - (otherwise)           Hit 'Redeploy' to restore the current version with a new clean storage"
+echo
+echo "      2. Wait for the Application status to become Ready in the KOTS Admin Console UI."
+echo
+echo "      3. (Optional, but recommended) Clean-up previous data images and data containers using 'rgclone':"
+echo "          - Run './rgclone get all' to get the old IDs of data images and data containers"
+echo "          - Delete resources manually (i.e. './rgclone delete dc 14 15 16' (these are example IDs))"
+echo
+echo "      4. (If needed) Re-add disks if you have multiple ones setup (see below)."
+echo
+echo "   Note:"
+echo "      If you had more than 1 disk attached, you will have to re-add them to the cluster."
+echo "      This action can only be done after the application is fully ready (step 2 above)"
+echo "      To add disks to the cluster, follow the instructions here: https://documentation.red-gate.com/x/rIDuC"
