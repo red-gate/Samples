@@ -35,13 +35,20 @@ Sample terraform to provision Redgate Clone infrastructure on Azure.
     ```
    
     Then store the key in the `ARM_ACCESS_KEY` environment variable:  
+    
+    On Linux/MacOS:
     ```bash
     export ARM_ACCESS_KEY=<key>  
     ```
+    On Windows (Powershell):
+    ```pwsh
+    $env:ARM_ACCESS_KEY="<key>"
+    ```
+
 
 6. Open the `main.tf` file.
-   * Update the `azurerm` provider with your azure subscription ID.
-   * Set `vm_password` in the `dev` module. [Use an azure VM compliant password.](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-)
+   * Set the `subscription_id` in the `azurerm` provider with your [Azure subscription ID](https://learn.microsoft.com/en-us/azure/azure-portal/get-subscription-tenant-id).
+   * Set the `vm_password` in the `dev` module with an [Azure VM compliant password.](https://learn.microsoft.com/en-us/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-)
 
 7. Prepare and validate your files and working directory via the `terraform` command:
     ```bash
