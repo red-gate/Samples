@@ -3,38 +3,42 @@ Sample terraform to provision Redgate Clone infrastructure on Azure.
 
 ## Prerequisites
 
-* An azure subscription.
-* A shell with the `terraform` CLI installed.
+* An [Azure](https://azure.microsoft.com/) subscription.
+* A shell with both [the `terraform` CLI](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) and [Azure's `az` CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 
 ## Getting Started
 
-1. Log in to azure and use the appropriate subscription:
+1. Log in to Azure and set your account to the [the appropriate subscription ID](https://learn.microsoft.com/en-us/azure/azure-portal/get-subscription-tenant-id):
     ```bash
     az login
-    az account set --subscription <your-azure-subscription-name>
+    az account set --subscription <your-azure-subscription-id>
     ```
    
-2. Create a resource group to hold all of the infrastructure for Redgate Clone.
+2. Create a [resource group](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview#resource-groups) in an appropriate region to hold all of the infrastructure for Redgate Clone.
     ```bash
     az group create --name redgate-clone --location <your-region>
     ```
+    If you'd like to see what regions are available you can run the following:
+    ```bash
+    az account list-locations --query "[*].name"
+    ```
 
-3. Create a storage account.
+3. Create a [storage account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview).
     ```bash
     az storage account create --name rgclonestorageaccount --resource-group redgate-clone
     ```
 
-4. Create a container to hold the Terraform state.
+4. Create a [container](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction#containers) to hold the Terraform state.
     ```bash
     az storage container create --name terraform-state --resource-group redgate-clone --account-name rgclonestorageaccount
     ```
 
-5. Get the access key for the storage account that holds the terraform state. You can get the key from the following command, from the `value` field:
+5. Get the access key for the storage account that holds the Terraform state. You can get the key from the following command, from the `value` field:
     ```bash
     az storage account keys list --resource-group redgate-clone --account-name rgclonestorageaccount
     ```
    
-    Then store the key in the `ARM_ACCESS_KEY` environment variable:  
+    Then store the key in the `ARM_ACCESS_KEY` environment variable so that the `terraform` CLI can read it:  
     
     On Linux/MacOS:
     ```bash
