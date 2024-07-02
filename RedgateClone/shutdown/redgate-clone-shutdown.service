@@ -1,0 +1,17 @@
+[Unit]
+Description=Run cleanup at shutdown
+After=network.target syslog.target multi-user.target kubelet.target containerd.target
+Requires=kubelet.service containerd.service
+
+[Service]
+Type=oneshot
+User=Root
+Group=admin
+RemainAfterExit=yes
+Environment="KUBECONFIG=/home/rgadmin/.kube/config"
+ExecStop=bash /home/rgadmin/redgate-clone-shutdown.sh
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=shutdown.target reboot.target halt.target
