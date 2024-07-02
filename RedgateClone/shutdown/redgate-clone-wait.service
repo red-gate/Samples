@@ -6,8 +6,7 @@ Requires=kubelet.service containerd.service
 
 [Service]
 Type=oneshot
-User=Root
-Group=admin
+User=root
 Environment="KUBECONFIG=/home/rgadmin/.kube/config"
 ExecStart=bash /home/rgadmin/redgate-clone-wait.sh
 
