@@ -8,7 +8,7 @@ Type=oneshot
 User=root
 RemainAfterExit=yes
 Environment="KUBECONFIG=/home/rgadmin/.kube/config"
-ExecStop=bash /home/rgadmin/redgate-clone-shutdown.sh
+ExecStop=bash $HOME/redgate-clone-shutdown.sh
 Restart=on-failure
 RestartSec=60s
 
