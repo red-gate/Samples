@@ -8,7 +8,7 @@ Requires=kubelet.service containerd.service
 Type=oneshot
 User=root
 Environment="KUBECONFIG=/home/rgadmin/.kube/config"
-ExecStart=bash /home/rgadmin/redgate-clone-wait.sh
+ExecStart=bash $HOME/redgate-clone-wait.sh
 
 [Install]
 WantedBy=multi-user.target
