@@ -1,7 +1,3 @@
-## System set up
-You will need:
-- A Windows machine to run this script and the rggenerate CLIs on.
-
 ## Instructions
 1. Download the script file [.\run-data-generation.ps1](run-data-generation.ps1) and the options file [./rggenerate-options.json](rggenerate-options.json).
 1. Download the [rggenerate executable](https://download.red-gate.com/EAP/RGGenerateWin64.zip) and extract it from the ZIP file.
