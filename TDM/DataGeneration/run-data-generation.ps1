@@ -4,12 +4,14 @@ param (
     $sqlDatabaseName = "AdventureWorksLT2022",
     $sqlUser = "",
     $sqlPassword = "",
-    $output = "C:/temp/output",
     $odbcDriver = "ODBC+Driver+18+for+SQL+Server",
     [switch]$classify = $false,
     [switch]$plan = $false,
     [switch]$populate = $false
 )
+
+$output = (Get-Item .).FullName
+Write-Output "Output folder: $output"
 
 # Connection strings
 $sqlAlchemyPrefix = "mssql+pyodbc"
