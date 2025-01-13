@@ -4,12 +4,14 @@ param (
     $sqlDatabaseName = "AdventureWorksLT2022",
     $sqlUser = "",
     $sqlPassword = "",
-    $output = "C:/temp/output",
     $odbcDriver = "ODBC+Driver+18+for+SQL+Server",
     [switch]$classify = $false,
     [switch]$plan = $false,
     [switch]$populate = $false
 )
+
+$output = (Get-Item .).FullName
+Write-Output "Output folder: $output"
 
 # Connection strings
 $sqlAlchemyPrefix = "mssql+pyodbc"
@@ -56,7 +58,8 @@ if ($classify) {
 if ($plan) {
     Write-Output ""
     Write-Output "PLAN: creating a generation.json file in $output"
-    .\rggenerate plan --connection-string "$connection_SqlAlchemy" --classification-file "$output\classification.json" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
+    # .\rggenerate plan --connection-string "$connection_SqlAlchemy" --classification-file "$output\classification.json" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
+    .\rggenerate plan --connection-string "$connection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
 }
 
 if ($populate) {
