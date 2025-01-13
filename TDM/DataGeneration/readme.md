@@ -10,7 +10,7 @@ You will need:
    - Click the drivers tab
    - Check for an entry "ODBC Driver 18 for Sql Server"
 1. If you do not have the Sql Server ODBC drivers installed, please [download them](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server?view=sql-server-ver16) and install them. You may also need to install the [Microsoft C++ runtimes](https://aka.ms/vs/15/release/vc_redist.x64.exe). If you have a different version of the ODBC drivers installed, you may also need to edit the ODBC driver name.
-1. Edit the file [.\run-data-generation.ps1](run-data-generation.ps1). You need to enter your Sql Server instance details at the top in the `param` section. You also need to enter the output directory.
+1. Edit the file [.\run-data-generation.ps1](run-data-generation.ps1). You need to enter your Sql Server instance details at the top in the `param` section.
 1. Run the script to plan data generation for your database by executing this command in the Windows command prompt. You may like to check the output generation json file afterwards.
    ```
    powershell -ep bypass .\run-data-generation.ps1 -plan
