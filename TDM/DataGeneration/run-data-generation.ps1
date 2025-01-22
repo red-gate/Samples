@@ -59,7 +59,7 @@ if ($plan) {
     Write-Output ""
     Write-Output "PLAN: creating a generation.json file in $output"
     # .\rggenerate plan --connection-string "$connection_SqlAlchemy" --classification-file "$output\classification.json" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
-    .\rggenerate plan --connection-string "$connection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs"--agree-to-eula
+    .\rggenerate plan --connection-string "$connection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
 }
 
 if ($populate) {
