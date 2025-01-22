@@ -65,5 +65,5 @@ if ($plan) {
 if ($populate) {
     Write-Output ""
     Write-Output "POPULATE: generating data into database"
-    .\rggenerate populate --target-connection-string "$connection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs"--agree-to-eula
+    .\rggenerate populate --target-connection-string "$connection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
 }
