@@ -64,11 +64,17 @@ else {
 
 Write-Output "PS version: $($PSVersionTable.PSVersion)"
 Write-Output ""
-Write-Output "Connection string (DotNet):"
+Write-Output "Source Connection string (DotNet):"
 Write-Output "$sourceConnection_DotNet"
 Write-Output ""
-Write-Output "Connection string (SqlAlchemy):"
+Write-Output "Source Connection string (SqlAlchemy):"
 Write-Output "$sourceConnection_SqlAlchemy"
+Write-Output ""
+Write-Output "Target Connection string (DotNet):"
+Write-Output "$targetConnection_DotNet"
+Write-Output ""
+Write-Output "Target Connection string (SqlAlchemy):"
+Write-Output "$targetConnection_SqlAlchemy"
 
 if ($classify) {
     Write-Output ""
