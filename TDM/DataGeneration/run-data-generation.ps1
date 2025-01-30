@@ -21,6 +21,7 @@ Write-Output "Current folder: $currentFolder"
 # Connection strings
 $sqlAlchemyPrefix = "mssql+pyodbc"
 
+# SOURCE
 if ($sqlSourcePort -like "") {
     $sqlSourceHostPort_DotNet = $sqlSourceHost
     $sqlSourceHostPort_SqlAlchemy = $sqlSourceHost
@@ -32,7 +33,6 @@ else {
     $sqlSourceHostPort_SqlAlchemy = "${sqlSourceHost}:$sqlSourcePort"
 }
 
-# SOURCE
 if (($sqlSourceUser -like "") -and ($sqlSourcePassword -like "")){
     # No username and password: Use Windows authentication
     $sourceConnection_DotNet = "server=$sqlSourceHostPort_DotNet;database=$sqlSourceDatabaseName;Trusted_Connection=yes;TrustServerCertificate=yes"
@@ -48,6 +48,17 @@ else {
 }
 
 # TARGET
+if ($sqlTargetPort -like "") {
+    $sqlTargetHostPort_DotNet = $sqlTargetHost
+    $sqlTargetHostPort_SqlAlchemy = $sqlTargetHost
+}
+else {
+    # DotNet connection strings require a comma between host and port
+    $sqlTargetHostPort_DotNet = "$sqlTargetHost,$sqlTargetPort"
+    # SqlAlchemy connection string URLs require a colon between host and port
+    $sqlTargetHostPort_SqlAlchemy = "${sqlTargetHost}:$sqlTargetPort"
+}
+
 if (($sqlTargetUser -like "") -and ($sqlTargetPassword -like "")){
     # No username and password: Use Windows authentication
     $TargetConnection_DotNet = "server=$sqlTargetHostPort_DotNet;database=$sqlTargetDatabaseName;Trusted_Connection=yes;TrustServerCertificate=yes"
