@@ -1,9 +1,14 @@
 param (
-    $sqlHost = "localhost",
-    $sqlPort = "",
-    $sqlDatabaseName = "AdventureWorksLT2022",
-    $sqlUser = "",
-    $sqlPassword = "",
+    $sqlSourceHost = "localhost",
+    $sqlSourcePort = "",
+    $sqlSourceDatabaseName = "AdventureWorksLT2022_Target",
+    $sqlSourceUser = "",
+    $sqlSourcePassword = "",
+    $sqlTargetHost = "localhost",
+    $sqlTargetPort = "",
+    $sqlTargetDatabaseName = "AdventureWorksLT2022_Target",
+    $sqlTargetUser = "",
+    $sqlTargetPassword = "",
     $odbcDriver = "ODBC+Driver+18+for+SQL+Server",
     [switch]$classify = $false,
     [switch]$plan = $false,
@@ -16,54 +21,70 @@ Write-Output "Output folder: $output"
 # Connection strings
 $sqlAlchemyPrefix = "mssql+pyodbc"
 
-if ($sqlPort -like "") {
-    $sqlHostPort_DotNet = $sqlHost
-    $sqlHostPort_SqlAlchemy = $sqlHost
+if ($sqlSourcePort -like "") {
+    $sqlSourceHostPort_DotNet = $sqlSourceHost
+    $sqlSourceHostPort_SqlAlchemy = $sqlSourceHost
 }
 else {
     # DotNet connection strings require a comma between host and port
-    $sqlHostPort_DotNet = "$sqlHost,$sqlPort"
+    $sqlSourceHostPort_DotNet = "$sqlSourceHost,$sqlSourcePort"
     # SqlAlchemy connection string URLs require a colon between host and port
-    $sqlHostPort_SqlAlchemy = "${sqlHost}:$sqlPort"
+    $sqlSourceHostPort_SqlAlchemy = "${sqlSourceHost}:$sqlSourcePort"
 }
 
-if (($sqlUser -like "") -and ($sqlPassword -like "")){
+# SOURCE
+if (($sqlSourceUser -like "") -and ($sqlSourcePassword -like "")){
     # No username and password: Use Windows authentication
-    $connection_DotNet = "server=$sqlHostPort_DotNet;database=$sqlDatabaseName;Trusted_Connection=yes;TrustServerCertificate=yes"
-    $connection_SqlAlchemy = "${sqlAlchemyPrefix}://@${sqlHostPort_SqlAlchemy}/${sqlDatabaseName}?trusted_connection=yes&TrustServerCertificate=yes&driver=$odbcDriver"
+    $sourceConnection_DotNet = "server=$sqlSourceHostPort_DotNet;database=$sqlSourceDatabaseName;Trusted_Connection=yes;TrustServerCertificate=yes"
+    $sourceConnection_SqlAlchemy = "${sqlAlchemyPrefix}://@${sqlSourceHostPort_SqlAlchemy}/${sqlSourceDatabaseName}?trusted_connection=yes&TrustServerCertificate=yes&driver=$odbcDriver"
 }
 else {
-    $connection_DotNet = "server=$sqlHostPort_DotNet;database=$sqlDatabaseName;TrustServerCertificate=yes;User Id=$sqlUser;Password=$sqlPassword;"
+    $sourceConnection_DotNet = "server=$sqlSourceHostPort_DotNet;database=$sqlSourceDatabaseName;TrustServerCertificate=yes;User Id=$sqlSourceUser;Password=$sqlSourcePassword;"
 
     # SqlAlchemy database connection URL must be URL encoded in case password has characters like @ or /
-    $sqlPasswordSqlAlchemy = [uri]::EscapeDataString($sqlPassword)
+    $sqlSourcePasswordSqlAlchemy = [uri]::EscapeDataString($sqlSourcePassword)
 
-    $connection_SqlAlchemy = "${sqlAlchemyPrefix}://${sqlUser}:${sqlPasswordSqlAlchemy}@${sqlHostPort_SqlAlchemy}${sqlPort_SqlAlchemy}/${sqlDatabaseName}?&TrustServerCertificate=yes&driver=$odbcDriver"
+    $sourceConnection_SqlAlchemy = "${sqlAlchemyPrefix}://${sqlSourceUser}:${sqlSourcePasswordSqlAlchemy}@${sqlSourceHostPort_SqlAlchemy}${sqlPort_SqlAlchemy}/${sqlSourceDatabaseName}?&TrustServerCertificate=yes&driver=$odbcDriver"
+}
+
+# TARGET
+if (($sqlTargetUser -like "") -and ($sqlTargetPassword -like "")){
+    # No username and password: Use Windows authentication
+    $TargetConnection_DotNet = "server=$sqlTargetHostPort_DotNet;database=$sqlTargetDatabaseName;Trusted_Connection=yes;TrustServerCertificate=yes"
+    $TargetConnection_SqlAlchemy = "${sqlAlchemyPrefix}://@${sqlTargetHostPort_SqlAlchemy}/${sqlTargetDatabaseName}?trusted_connection=yes&TrustServerCertificate=yes&driver=$odbcDriver"
+}
+else {
+    $TargetConnection_DotNet = "server=$sqlTargetHostPort_DotNet;database=$sqlTargetDatabaseName;TrustServerCertificate=yes;User Id=$sqlTargetUser;Password=$sqlTargetPassword;"
+
+    # SqlAlchemy database connection URL must be URL encoded in case password has characters like @ or /
+    $sqlTargetPasswordSqlAlchemy = [uri]::EscapeDataString($sqlTargetPassword)
+
+    $TargetConnection_SqlAlchemy = "${sqlAlchemyPrefix}://${sqlTargetUser}:${sqlTargetPasswordSqlAlchemy}@${sqlTargetHostPort_SqlAlchemy}${sqlPort_SqlAlchemy}/${sqlTargetDatabaseName}?&TrustServerCertificate=yes&driver=$odbcDriver"
 }
 
 Write-Output "PS version: $($PSVersionTable.PSVersion)"
 Write-Output ""
 Write-Output "Connection string (DotNet):"
-Write-Output "$connection_DotNet"
+Write-Output "$sourceConnection_DotNet"
 Write-Output ""
 Write-Output "Connection string (SqlAlchemy):"
-Write-Output "$connection_SqlAlchemy"
+Write-Output "$sourceConnection_SqlAlchemy"
 
 if ($classify) {
     Write-Output ""
     Write-Output "CLASSIFY: creating a classification.json file in $output"
-    .\rganonymize classify --database-engine SqlServer --connection-string="$connection_DotNet" --classification-file "$output\classification.json" --output-all-columns
+    .\rganonymize classify --database-engine SqlServer --connection-string="$sourceConnection_DotNet" --classification-file "$output\classification.json" --output-all-columns
 }
 
 if ($plan) {
     Write-Output ""
     Write-Output "PLAN: creating a generation.json file in $output"
-    # .\rggenerate plan --connection-string "$connection_SqlAlchemy" --classification-file "$output\classification.json" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
-    .\rggenerate plan --connection-string "$connection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
+    # .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --classification-file "$output\classification.json" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
+    .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
 }
 
 if ($populate) {
     Write-Output ""
     Write-Output "POPULATE: generating data into database"
-    .\rggenerate populate --target-connection-string "$connection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
+    .\rggenerate populate --source-connection-string "$sourceConnection_SqlAlchemy" --target-connection-string "$targetConnection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
 }
