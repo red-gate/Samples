@@ -1,7 +1,7 @@
 param (
     $sqlSourceHost = "localhost",
     $sqlSourcePort = "",
-    $sqlSourceDatabaseName = "AdventureWorksLT2022_Target",
+    $sqlSourceDatabaseName = "AdventureWorksLT2022",
     $sqlSourceUser = "",
     $sqlSourcePassword = "",
     $sqlTargetHost = "localhost",
@@ -15,8 +15,8 @@ param (
     [switch]$populate = $false
 )
 
-$output = (Get-Item .).FullName
-Write-Output "Output folder: $output"
+$currentFolder = (Get-Item .).FullName
+Write-Output "Current folder: $currentFolder"
 
 # Connection strings
 $sqlAlchemyPrefix = "mssql+pyodbc"
@@ -78,19 +78,19 @@ Write-Output "$targetConnection_SqlAlchemy"
 
 if ($classify) {
     Write-Output ""
-    Write-Output "CLASSIFY: creating a classification.json file in $output"
-    .\rganonymize classify --database-engine SqlServer --connection-string="$sourceConnection_DotNet" --classification-file "$output\classification.json" --output-all-columns
+    Write-Output "CLASSIFY: creating a classification.json file in $currentFolder"
+    .\rganonymize classify --database-engine SqlServer --connection-string="$sourceConnection_DotNet" --classification-file "$currentFolder\classification.json" --output-all-columns
 }
 
 if ($plan) {
     Write-Output ""
-    Write-Output "PLAN: creating a generation.json file in $output"
-    # .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --classification-file "$output\classification.json" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
-    .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
+    Write-Output "PLAN: creating a generation.json file in $currentFolder"
+    # .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --classification-file "$currentFolder\classification.json" --generation-file "$currentFolder\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
+    .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --generation-file "$currentFolder\generation.json" --options-file "rggenerate-options.json" --log-folder "$currentFolder\logs" --agree-to-eula
 }
 
 if ($populate) {
     Write-Output ""
     Write-Output "POPULATE: generating data into database"
-    .\rggenerate populate --source-connection-string "$sourceConnection_SqlAlchemy" --target-connection-string "$targetConnection_SqlAlchemy" --generation-file "$output\generation.json" --options-file "rggenerate-options.json" --log-folder "$output\logs" --agree-to-eula
+    .\rggenerate populate --source-connection-string "$sourceConnection_SqlAlchemy" --target-connection-string "$targetConnection_SqlAlchemy" --generation-file "$currentFolder\generation.json" --options-file "rggenerate-options.json" --log-folder "$currentFolder\logs" --agree-to-eula
 }
