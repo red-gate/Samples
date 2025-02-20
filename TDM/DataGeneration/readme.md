@@ -1,6 +1,6 @@
 ## Instructions
 1. Download the script file [.\run-data-generation.ps1](run-data-generation.ps1) and the options file [./rggenerate-options.json](rggenerate-options.json).
-1. Download the [rggenerate executable](https://download.red-gate.com/EAP/RGGenerateWin64.zip) and extract it from the ZIP file.
+1. Download the [rggenerate executable](https://download.red-gate.com/EAP/RGGenerateWin64.zip) and extract it from the ZIP file, into the same directory as the script file and options file.
 1. Check whether you have the Microsoft Sql Server ODBC drivers installed.
    - In the Start menu, open "ODBC Data Sources (64-bit)"
    - Click the drivers tab
