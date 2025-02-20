@@ -96,8 +96,8 @@ if ($classify) {
 if ($plan) {
     Write-Output ""
     Write-Output "PLAN: creating a generation.json file in $currentFolder"
-    # .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --classification-file "$currentFolder\classification.json" --generation-file "$currentFolder\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
-    .\rggenerate plan --connection-string "$sourceConnection_SqlAlchemy" --generation-file "$currentFolder\generation.json" --options-file "rggenerate-options.json" --log-folder "$currentFolder\logs" --agree-to-eula
+    # .\rggenerate plan --connection-string "$targetConnection_SqlAlchemy" --classification-file "$currentFolder\classification.json" --generation-file "$currentFolder\generation.json" --options-file "rggenerate-options.json" --agree-to-eula
+    .\rggenerate plan --connection-string "$targetConnection_SqlAlchemy" --generation-file "$currentFolder\generation.json" --options-file "rggenerate-options.json" --log-folder "$currentFolder\logs" --agree-to-eula
 }
 
 if ($populate) {
