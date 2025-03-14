@@ -1,6 +1,6 @@
 {
   "global": {
-    "defaultNumberOfRows": 10,
+    "rowsDefault": 10,
     "seed": 42
   }
 }
